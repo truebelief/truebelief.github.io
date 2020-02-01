@@ -232,7 +232,7 @@ var heat_color;
                                 context.fillStyle = this.interpolate(s*(scale_max-scale_min)+scale_min);
                                 context.fillRect(i, 0, 2, 2);
                             }
-                            var three_scales=[scale_min,0.5*(scale_min+scale_max),scale_max]
+                            var three_scales=[scale_min,Math.round(0.5*(scale_min+scale_max)),scale_max]
                             var scale_label=document.getElementsByClassName("map-legend-label scale");
 
                             for (var i=0;i<scale_label.length;i++)
