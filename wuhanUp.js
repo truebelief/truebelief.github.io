@@ -166,8 +166,9 @@ var heat_color;
 
                             var tool_div = d3.select("body").append("div")
                                 .attr("class", "path-tooltip")
+                                // .attr("font-size", "8px")
                                 .style("position", "absolute")
-                                .style("z-index", "9000")
+                                .style("z-index", "100")
                                 .style("opacity", 0);
 
 
@@ -212,8 +213,8 @@ var heat_color;
                                             .style("opacity", 1);
 
                                         tool_div.html(d.properties.name.toString() + ":" + d.properties.values[current_num].toString())
-                                            .style("left", (d3.event.pageX + 10) + "px")
-                                            .style("top", (d3.event.pageY - 15) + "px");
+                                            .style("left", (Math.min(d3.event.pageX + 10, screen.width-30)) + "px")
+                                            .style("top", (Math.min(d3.event.pageY - 15,screen.height-20)) + "px");
                                     }
                                 });
                         }
