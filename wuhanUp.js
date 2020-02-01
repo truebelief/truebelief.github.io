@@ -1,15 +1,15 @@
-
-function readTextFile(file, callback) {
-    var rawFile = new XMLHttpRequest();
-    rawFile.overrideMimeType("application/json");
-    rawFile.open("GET", file, true);
-    rawFile.onreadystatechange = function() {
-        if (rawFile.readyState === 4 && rawFile.status == "200") {
-            callback(rawFile.responseText);
-        }
-    };
-    rawFile.send(null);
-}
+//
+// function readTextFile(file, callback) {
+//     var rawFile = new XMLHttpRequest();
+//     rawFile.overrideMimeType("application/json");
+//     rawFile.open("GET", file, true);
+//     rawFile.onreadystatechange = function() {
+//         if (rawFile.readyState === 4 && rawFile.status == "200") {
+//             callback(rawFile.responseText);
+//         }
+//     };
+//     rawFile.send(null);
+// }
 
 
 // var default_color="#D6ECEF";
@@ -41,10 +41,16 @@ function get_range(data)
 
 var heat_color;
 
-(function() {
+$(document).ready(function(){
+    require("app").initialize();
+});
 
-    readTextFile("daily.json", function(text){
-        daily_data = JSON.parse(text);
+
+(function() {
+    // require("app").initialize();
+    // var coffee = require('coffee-script').register();
+    $.getJSON( "daily.json", function( data ) {
+        daily_data=data;
 
         var current_num=0;
 
@@ -71,7 +77,7 @@ var heat_color;
 
                 class MapView extends Backbone.View {};
 
-                easie = require("lib/easie");
+                // easie = require("lib/easie");
 
                 interpolate = function(x, y, p) {
                     if (x >= 0 && y >= 0) {
@@ -89,8 +95,8 @@ var heat_color;
                     class MapView extends Backbone.View {
                         createScale() {
                             return this.scale=function(i) {
-                                    return Math.round((scale_max-scale_min)*i/divides+scale_min);
-                                };
+                                return Math.round((scale_max-scale_min)*i/divides+scale_min);
+                            };
                         }
 
                         initialize(opts) {
@@ -159,11 +165,11 @@ var heat_color;
                             svg.selectAll("*").remove();
 
 
-                            var projection = d3.geo.mercator()
+                            var projection = d3.geoMercator()
                                 .center([107, 32]).scale(600)
                                 .translate([width/2, height/2]);
 
-                            var path = d3.geo.path()
+                            var path = d3.geoPath()
                                 .projection(projection);
 
                             // svg.selectAll("*").remove();
@@ -185,8 +191,8 @@ var heat_color;
 
 
                             svg_enter.append("path")
-                                // .attr("fill", default_color)
-                                // .attr("fill", function(k) {return color_renderer(k)})
+                            // .attr("fill", default_color)
+                            // .attr("fill", function(k) {return color_renderer(k)})
                                 .attr("d", path )
                                 .attr("id", function(d, i) {
                                     // return d.properties.id;
@@ -210,7 +216,7 @@ var heat_color;
                                             .attr('opacity', '1.0')
                                             .attr("stroke-width", "0px");
                                     }
-                                        // .attr("fill",function(k) {return color_renderer(k)});
+                                    // .attr("fill",function(k) {return color_renderer(k)});
                                 })
                                 .on("mousedown", function (d,i) {
                                     if (d3.select(this).attr("opacity")>0) {
@@ -470,13 +476,11 @@ var heat_color;
 
             }).call(this);
         });
-        var tt=1;
     });
 }).call(this);
 
-$(document).ready(function(){
-    require("app").initialize();
-});
+
+
 
 function plot_time(){
     var x = d3.scaleTime()
