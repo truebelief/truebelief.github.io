@@ -167,6 +167,7 @@ var heat_color;
                             var tool_div = d3.select("body").append("div")
                                 .attr("class", "path-tooltip")
                                 .style("position", "absolute")
+                                .style("z-index", "9000")
                                 .style("opacity", 0);
 
 
@@ -192,12 +193,19 @@ var heat_color;
                                     if (d3.select(this).attr("opacity")>0) {
                                         d3.select(this).transition()
                                             .duration('50')
-                                            .attr('opacity', 1)
+                                            .attr('opacity', '1.0')
                                             .attr("stroke-width", "0px");
+
+                                        tool_div.transition()
+                                            .duration('50')
+                                            .style("opacity", 0);
                                     }
                                     // .attr("fill",function(k) {return color_renderer(k)});
                                 })
                                 .on("mousedown", function (d,i) {
+
+                                })
+                                .on("mouseup", function (d,i) {
                                     if (d3.select(this).attr("opacity")>0) {
                                         tool_div.transition()
                                             .duration('50')
@@ -207,24 +215,6 @@ var heat_color;
                                             .style("left", (d3.event.pageX + 10) + "px")
                                             .style("top", (d3.event.pageY - 15) + "px");
                                     }
-                                })
-                                .on("mouseup", function (d,i) {
-                                    if (d3.select(this).attr("opacity")>0) {
-                                        tool_div.transition()
-                                            .duration(50)
-                                            .style("opacity", 0);
-                                    }
-                                })
-                                .on("ontouchend", function (d) {
-                                    d3.event.preventDefault();
-                                    d3.event.stopPropagation();
-                                    if (d3.select(this).attr("opacity")>0) {
-                                        tool_div.style("opacity", 1);
-                                        tool_div.html(d.properties.values[current_num].toString())
-                                            .style("left", (d[0][0]) + "px")
-                                            .style("top", (d[0][1]) + "px");
-                                    }
-
                                 });
                         }
 
@@ -250,7 +240,7 @@ var heat_color;
                         }
 
                         drawMinimap() {
-                            var a, a1, a2, canvas, canvasBase, canvasColor, contextBase, contextColor, province, i, j, k, l, len, len1, m, ref, ref1, ref2, resolution, t, v, v1, v2, x, y, date;
+                            var a, a1, a2, canvas, canvasBase, canvasColor, contextBase, contextColor, country, i, j, k, l, len, len1, m, ref, ref1, ref2, resolution, t, v, v1, v2, x, y, date;
                             canvas = this.$elements.minimap.get(0);
                             canvas.width = this.$elements.minimap.width() * 2;
                             canvas.height = this.data.items.length;
@@ -265,9 +255,9 @@ var heat_color;
                                 date = ref[i];
                                 ref1 = this.data.items;
                                 for (y = l = 0, len1 = ref1.length; l < len1; y = ++l) {
-                                    province = ref1[y];
-                                    v1 = province.properties.values[i];
-                                    v2 = province.properties.values[Math.min(i + 1, this.data.scale.length - 1)];
+                                    country = ref1[y];
+                                    v1 = country.properties.values[i];
+                                    v2 = country.properties.values[Math.min(i + 1, this.data.scale.length - 1)];
                                     a1 = v1 ? 1 : 0;
                                     a2 = v2 ? 1 : 0;
                                     for (j = m = 0, ref2 = resolution; (0 <= ref2 ? m <= ref2 : m >= ref2); j = 0 <= ref2 ? ++m : --m) {
@@ -453,7 +443,9 @@ var heat_color;
                         "pointerdown #map-timeline-minimap": "startDate",
                         "pointercancel": "endDate"
                     };
+
                     // MapView.prototype.interpolate = d3.interpolateRgbBasis(["#0056fa", "#fff", "#fa0051"]);
+
                     MapView.prototype.interpolate =heat_color;
                     return MapView;
 
@@ -467,31 +459,32 @@ var heat_color;
     });
 }).call(this);
 
-function plot_time(){
-    var x = d3.scaleTime()
-        .domain(d3.extent(data, function(d) { return d.date; }))
-        .range([ 0, width ]);
-    svg.append("g")
-        .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x));
 
-// Add Y axis
-    var y = d3.scaleLinear()
-        .domain([0, d3.max(data, function(d) { return +d.value; })])
-        .range([ height, 0 ]);
-    svg.append("g")
-        .call(d3.axisLeft(y));
-
-// Add the line
-    svg.append("path")
-        .datum(data)
-        .attr("fill", "none")
-        .attr("stroke", "steelblue")
-        .attr("stroke-width", 1.5)
-        .attr("d", d3.line()
-            .x(function(d) { return x(d.date) })
-            .y(function(d) { return y(d.value) })
-        )
-
-
-}
+// function plot_time(){
+//     var x = d3.scaleTime()
+//         .domain(d3.extent(data, function(d) { return d.date; }))
+//         .range([ 0, width ]);
+//     svg.append("g")
+//         .attr("transform", "translate(0," + height + ")")
+//         .call(d3.axisBottom(x));
+//
+// // Add Y axis
+//     var y = d3.scaleLinear()
+//         .domain([0, d3.max(data, function(d) { return +d.value; })])
+//         .range([ height, 0 ]);
+//     svg.append("g")
+//         .call(d3.axisLeft(y));
+//
+// // Add the line
+//     svg.append("path")
+//         .datum(data)
+//         .attr("fill", "none")
+//         .attr("stroke", "steelblue")
+//         .attr("stroke-width", 1.5)
+//         .attr("d", d3.line()
+//             .x(function(d) { return x(d.date) })
+//             .y(function(d) { return y(d.value) })
+//         )
+//
+//
+// }
