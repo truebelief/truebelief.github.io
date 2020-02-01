@@ -216,12 +216,10 @@ var heat_color;
                                     }
                                 })
                                 .on("ontouchend", function (d) {
-                                    // d3.event.preventDefault();
-                                    // d3.event.stopPropagation();
+                                    d3.event.preventDefault();
+                                    d3.event.stopPropagation();
                                     if (d3.select(this).attr("opacity")>0) {
-                                        tool_div.transition()
-                                            .duration(50)
-                                            .style("opacity", 1);
+                                        tool_div.style("opacity", 1);
                                         tool_div.html(d.properties.values[current_num].toString())
                                             .style("left", (d[0][0]) + "px")
                                             .style("top", (d[0][1]) + "px");
