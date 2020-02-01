@@ -1,23 +1,6 @@
-//
-// function readTextFile(file, callback) {
-//     var rawFile = new XMLHttpRequest();
-//     rawFile.overrideMimeType("application/json");
-//     rawFile.open("GET", file, true);
-//     rawFile.onreadystatechange = function() {
-//         if (rawFile.readyState === 4 && rawFile.status == "200") {
-//             callback(rawFile.responseText);
-//         }
-//     };
-//     rawFile.send(null);
-// }
-
-
 // var default_color="#D6ECEF";
 // var default_color="#ffcbb1";
 var default_color="#ffe9de";
-
-
-
 
 
 var geo_features;
@@ -41,17 +24,11 @@ function get_range(data)
 
 var heat_color;
 
-$(document).ready(function(){
-    require("app").initialize();
-});
-
-
 (function() {
-    // require("app").initialize();
-    // var coffee = require('coffee-script').register();
-    $.getJSON( "daily.json", function( data ) {
-        daily_data=data;
+    var getj = $.getJSON("daily.json");
+    getj.done(function(data) {
 
+        daily_data=data;
         var current_num=0;
 
         // console.log(daily_data[0].日期);
@@ -476,6 +453,7 @@ $(document).ready(function(){
 
             }).call(this);
         });
+        require("app").initialize();
     });
 }).call(this);
 
