@@ -216,14 +216,16 @@ var heat_color;
                                             .style("opacity", 0);
                                     }
                                 })
-                                .on("ontouchstart", function (d,i) {
+                                .on("ontouchstart", function (d) {
+                                    // d3.event.preventDefault();
+                                    // d3.event.stopPropagation();
                                     if (d3.select(this).attr("opacity")>0) {
                                         tool_div.transition()
                                             .duration(50)
                                             .style("opacity", 0);
                                         tool_div.html(d.properties.values[current_num].toString())
-                                            .style("left", (d3.event.pageX + 10) + "px")
-                                            .style("top", (d3.event.pageY - 15) + "px");
+                                            .style("left", (d[0][0] + 10) + "px")
+                                            .style("top", (d[0][1] - 15) + "px");
                                     }
 
                                 });
