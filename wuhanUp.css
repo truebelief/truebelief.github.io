@@ -57,31 +57,20 @@ body, h1, h2, h3 {
     margin: 0
 }
 
-.country, .background {
+.province, .background {
     fill: #e6eaee
 }
 
 @media (color-gamut: p3) {
-    .country, .background {
+    .province, .background {
         fill: #f2f4f6
     }
 }
 
-.country {
+.province {
     transition: opacity 600ms
 }
 
-.country#country-USA, .country#country-CHN {
-    opacity: 1 !important
-}
-
-.country#country-USA {
-    fill: #0056fa !important
-}
-
-.country#country-CHN {
-    fill: #fa0051 !important
-}
 
 #map-scale {
     bottom: 12px;
