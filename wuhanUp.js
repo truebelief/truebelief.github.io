@@ -192,7 +192,7 @@ var heat_color;
                                     if (d3.select(this).attr("opacity")>0) {
                                         d3.select(this).transition()
                                             .duration('50')
-                                            .attr('opacity', '1.0')
+                                            .attr('opacity', 1)
                                             .attr("stroke-width", "0px");
                                     }
                                     // .attr("fill",function(k) {return color_renderer(k)});
@@ -221,7 +221,7 @@ var heat_color;
                                     if (d3.select(this).attr("opacity")>0) {
                                         tool_div.transition()
                                             .duration(50)
-                                            .style("opacity", 0);
+                                            .style("opacity", 1);
                                         tool_div.html(d.properties.values[current_num].toString())
                                             .style("left", (d[0][0]) + "px")
                                             .style("top", (d[0][1]) + "px");
@@ -252,7 +252,7 @@ var heat_color;
                         }
 
                         drawMinimap() {
-                            var a, a1, a2, canvas, canvasBase, canvasColor, contextBase, contextColor, country, i, j, k, l, len, len1, m, ref, ref1, ref2, resolution, t, v, v1, v2, x, y, date;
+                            var a, a1, a2, canvas, canvasBase, canvasColor, contextBase, contextColor, province, i, j, k, l, len, len1, m, ref, ref1, ref2, resolution, t, v, v1, v2, x, y, date;
                             canvas = this.$elements.minimap.get(0);
                             canvas.width = this.$elements.minimap.width() * 2;
                             canvas.height = this.data.items.length;
@@ -267,9 +267,9 @@ var heat_color;
                                 date = ref[i];
                                 ref1 = this.data.items;
                                 for (y = l = 0, len1 = ref1.length; l < len1; y = ++l) {
-                                    country = ref1[y];
-                                    v1 = country.properties.values[i];
-                                    v2 = country.properties.values[Math.min(i + 1, this.data.scale.length - 1)];
+                                    province = ref1[y];
+                                    v1 = province.properties.values[i];
+                                    v2 = province.properties.values[Math.min(i + 1, this.data.scale.length - 1)];
                                     a1 = v1 ? 1 : 0;
                                     a2 = v2 ? 1 : 0;
                                     for (j = m = 0, ref2 = resolution; (0 <= ref2 ? m <= ref2 : m >= ref2); j = 0 <= ref2 ? ++m : --m) {
