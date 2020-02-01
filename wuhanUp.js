@@ -203,8 +203,7 @@ var heat_color;
                                             .duration('50')
                                             .style("opacity", 1);
 
-
-                                        tool_div.html(d.properties.values[current_num].toString())
+                                        tool_div.html(d.properties.name.toString() + ":" + d.properties.values[current_num].toString())
                                             .style("left", (d3.event.pageX + 10) + "px")
                                             .style("top", (d3.event.pageY - 15) + "px");
                                     }
@@ -216,7 +215,7 @@ var heat_color;
                                             .style("opacity", 0);
                                     }
                                 })
-                                .on("ontouchstart", function (d) {
+                                .on("ontouchend", function (d) {
                                     // d3.event.preventDefault();
                                     // d3.event.stopPropagation();
                                     if (d3.select(this).attr("opacity")>0) {
@@ -224,8 +223,8 @@ var heat_color;
                                             .duration(50)
                                             .style("opacity", 0);
                                         tool_div.html(d.properties.values[current_num].toString())
-                                            .style("left", (d[0][0] + 10) + "px")
-                                            .style("top", (d[0][1] - 15) + "px");
+                                            .style("left", (d[0][0]) + "px")
+                                            .style("top", (d[0][1]) + "px");
                                     }
 
                                 });
@@ -456,9 +455,7 @@ var heat_color;
                         "pointerdown #map-timeline-minimap": "startDate",
                         "pointercancel": "endDate"
                     };
-
                     // MapView.prototype.interpolate = d3.interpolateRgbBasis(["#0056fa", "#fff", "#fa0051"]);
-
                     MapView.prototype.interpolate =heat_color;
                     return MapView;
 
@@ -471,9 +468,6 @@ var heat_color;
         require("app").initialize();
     });
 }).call(this);
-
-
-
 
 function plot_time(){
     var x = d3.scaleTime()
