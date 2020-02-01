@@ -2,14 +2,12 @@
 // var default_color="#ffcbb1";
 var default_color="#ffe9de";
 
-
 var geo_features;
 var daily_data;
 var scale_range;
 var scale_min;
 var scale_max;
 var divides=10;
-
 
 function get_range(data)
 {
@@ -23,6 +21,11 @@ function get_range(data)
 }
 
 var heat_color;
+
+// $(document).ready(function(){
+//
+// });
+
 
 (function() {
     var getj = $.getJSON("daily.json");
@@ -163,6 +166,7 @@ var heat_color;
 
                             var tool_div = d3.select("body").append("div")
                                 .attr("class", "path-tooltip")
+                                .style("position", "absolute")
                                 .style("opacity", 0);
 
 
