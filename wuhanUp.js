@@ -187,8 +187,6 @@ var heat_color;
                                             .attr("stroke", "black")
                                             .attr("stroke-width", "1px");
                                     }
-
-                                    var ii=1;
                                 })
                                 .on("mouseout",function(d,i){
                                     if (d3.select(this).attr("opacity")>0) {
@@ -217,6 +215,17 @@ var heat_color;
                                             .duration(50)
                                             .style("opacity", 0);
                                     }
+                                })
+                                .on("ontouchstart", function (d,i) {
+                                    if (d3.select(this).attr("opacity")>0) {
+                                        tool_div.transition()
+                                            .duration(50)
+                                            .style("opacity", 0);
+                                        tool_div.html(d.properties.values[current_num].toString())
+                                            .style("left", (d3.event.pageX + 10) + "px")
+                                            .style("top", (d3.event.pageY - 15) + "px");
+                                    }
+
                                 });
                         }
 
