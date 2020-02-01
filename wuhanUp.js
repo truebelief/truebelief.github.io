@@ -213,8 +213,8 @@ var heat_color;
                                             .style("opacity", 1);
 
                                         tool_div.html(d.properties.name.toString() + ":" + d.properties.values[current_num].toString())
-                                            .style("left", (Math.min(d3.event.pageX + 10, screen.width-30)) + "px")
-                                            .style("top", (Math.min(d3.event.pageY - 15,screen.height-20)) + "px");
+                                            .style("left", (Math.min(d3.event.pageX + 10, $('#map').width()-50)) + "px")
+                                            .style("top", (Math.min(d3.event.pageY - 15,$('#map').height()-20)) + "px");
                                     }
                                 });
                         }
