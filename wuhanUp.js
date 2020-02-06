@@ -1,6 +1,8 @@
 // var default_color="#D6ECEF";
 // var default_color="#ffcbb1";
 var default_color="#ffe9de";
+var base_opacity=0.7;
+var light_opacity=0.5;
 
 var geo_features;
 var daily_data;
@@ -43,6 +45,54 @@ var heat_color;
 
         scale_range=$.map($(Array(divides+1)),function(val, i) { return Math.round((scale_max-scale_min)*i/divides+scale_min); });
 
+        var dt = daily_data.map(e => Object.values(e).slice(1));
+        // var time_data=dt[0].map((col, i) => dt.map(row => row[i]));
+        var time_whole_data=dt.map(e => (e.reduce((a,b) => a + b,0)));
+
+        // var labels=daily_data.map(e=>e['日期'].substring(5));
+        // var labels=d3.range(1,time_whole_data.length+1);
+
+        var ctx = document.getElementById('time-plot').getContext('2d');
+        var options = {
+            type: 'line',
+            data: {
+                labels: daily_data.map(e=>e['日期'].substring(5)),
+                datasets: [
+                    {
+                        label: '全国',
+                        data: time_whole_data,
+                        borderWidth: 1,
+                        backgroundColor: '#eeeeee',
+                        pointHoverRadius:10,
+                        order:1
+                    // }
+                    },
+                    {
+                        label: '',
+                        data: [],
+                        borderWidth: 0,
+                        backgroundColor: '#ffffff',
+                        pointHoverRadius:0,
+                        order:0
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            reverse: false
+                        }
+                    }]
+                }
+            }
+        };
+
+
+        var time_chart= new Chart(ctx, options);
+
+
+
         require.register("views/map", function(exports, require, module) {
             heat_color = d3.scaleLinear()
             // heat_color = d3.scalePow().exponent(0.2)
@@ -53,12 +103,9 @@ var heat_color;
 
             var MapView;
             return MapView = (function() {
-                var easie, interpolate, toThousands;
+                var interpolate;
 
                 class MapView extends Backbone.View {};
-
-                // easie = require("lib/easie");
-
                 interpolate = function(x, y, p) {
                     if (x >= 0 && y >= 0) {
                         return x + (y - x) * p;
@@ -185,7 +232,7 @@ var heat_color;
                                     if (d3.select(this).attr("opacity")>0) {
                                         d3.select(this).transition()
                                             .duration('50')
-                                            .attr('opacity', '.85')
+                                            .attr('opacity', light_opacity)
                                             .attr("stroke", "black")
                                             .attr("stroke-width", "1px");
                                     }
@@ -194,7 +241,7 @@ var heat_color;
                                     if (d3.select(this).attr("opacity")>0) {
                                         d3.select(this).transition()
                                             .duration('50')
-                                            .attr('opacity', '1.0')
+                                            .attr('opacity', base_opacity)
                                             .attr("stroke-width", "0px");
 
                                         tool_div.transition()
@@ -205,16 +252,44 @@ var heat_color;
                                 })
                                 .on("mousedown", function (d,i) {
 
+
+                                    time_chart.data.datasets[0].label="全国";
+                                    time_chart.data.datasets[0].data=time_whole_data;
+                                    time_chart.data.datasets[0].backgroundColor='#eeeeee';
+
+                                    if (d3.select(this).attr("opacity")>0) {
+                                        time_chart.data.datasets[1].label=d.properties.name.toString();
+                                        time_chart.data.datasets[1].data=geo_features[i].properties.values;
+                                        time_chart.data.datasets[1].backgroundColor='#aaaaaa';
+                                    }else
+                                    {
+                                        time_chart.data.datasets[1].label="";
+                                        time_chart.data.datasets[1].data=[];
+                                        time_chart.data.datasets[1].backgroundColor='#ffffff';
+                                        time_chart.data.datasets[1].borderColor='#ffffff';
+                                    }
+
+                                    time_chart.update();
                                 })
                                 .on("mouseup", function (d,i) {
                                     if (d3.select(this).attr("opacity")>0) {
                                         tool_div.transition()
                                             .duration('50')
-                                            .style("opacity", 1);
-
+                                            .style("opacity", 1.0);
                                         tool_div.html(d.properties.name.toString() + ":" + d.properties.values[current_num].toString())
                                             .style("left", (Math.min(d3.event.pageX + 10, $('#map').width()-50)) + "px")
                                             .style("top", (Math.min(d3.event.pageY - 15,$('#map').height()-20)) + "px");
+
+                                        time_chart.data.datasets[0].label="";
+                                        time_chart.data.datasets[0].data=[];
+                                        time_chart.data.datasets[0].backgroundColor='#ffffff';
+                                        time_chart.data.datasets[0].borderColor='#ffffff';
+                                        // time_chart.options.legend.display=false;
+
+                                        time_chart.data.datasets[1].label=d.properties.name.toString();
+                                        time_chart.data.datasets[1].data=geo_features[i].properties.values;
+                                        time_chart.data.datasets[1].backgroundColor='#aaaaaa';
+                                        time_chart.update();
                                     }
                                 });
                         }
@@ -231,10 +306,10 @@ var heat_color;
                                 context.fillStyle = this.interpolate(s*(scale_max-scale_min)+scale_min);
                                 context.fillRect(i, 0, 2, 2);
                             }
-                            var three_scales=[scale_min,Math.round(0.5*(scale_min+scale_max)),scale_max]
+                            var three_scales=[scale_min,Math.round(0.5*(scale_min+scale_max)),scale_max];
                             var scale_label=document.getElementsByClassName("map-legend-label scale");
 
-                            for (var i=0;i<scale_label.length;i++)
+                            for (i=0;i<scale_label.length;i++)
                             {
                                 scale_label[i].innerHTML=three_scales[i];
                             }
@@ -327,7 +402,7 @@ var heat_color;
                                     value = interpolate(sx, sy, p);
 
                                     d3.select("#rtg-"+data[k]['properties']['id'])
-                                        .attr("opacity", !(vx && vy) ? 0 : 1)
+                                        .attr("opacity", !(vx && vy) ? 0 : base_opacity)
                                         .attr("fill", this.interpolate(value));
                                     current_num = Math.round(this.currentTime * (this.data.scale.length - 1));
                                 }
@@ -433,9 +508,6 @@ var heat_color;
                         "items": [{
                         }]};
 
-                    // MapView.prototype.data = convert_data();
-                    // MapView.prototype.data = window.chart;
-
                     MapView.prototype.events = {
                         "click #btn-play": "play",
                         "click #btn-pause": "pause",
@@ -461,31 +533,3 @@ var heat_color;
 }).call(this);
 
 
-// function plot_time(){
-//     var x = d3.scaleTime()
-//         .domain(d3.extent(data, function(d) { return d.date; }))
-//         .range([ 0, width ]);
-//     svg.append("g")
-//         .attr("transform", "translate(0," + height + ")")
-//         .call(d3.axisBottom(x));
-//
-// // Add Y axis
-//     var y = d3.scaleLinear()
-//         .domain([0, d3.max(data, function(d) { return +d.value; })])
-//         .range([ height, 0 ]);
-//     svg.append("g")
-//         .call(d3.axisLeft(y));
-//
-// // Add the line
-//     svg.append("path")
-//         .datum(data)
-//         .attr("fill", "none")
-//         .attr("stroke", "steelblue")
-//         .attr("stroke-width", 1.5)
-//         .attr("d", d3.line()
-//             .x(function(d) { return x(d.date) })
-//             .y(function(d) { return y(d.value) })
-//         )
-//
-//
-// }
