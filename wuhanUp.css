@@ -438,8 +438,8 @@ div.path-tooltip {
 {
     position:absolute;
     display: block;
-    bottom:25%;
-    width:300px;
-    height:300px;
+    bottom:50%;
+    width:20%;
+    height:20%;
 
 }
