@@ -91,7 +91,8 @@ var heat_color;
 
         var time_chart= new Chart(ctx, options);
 
-
+        // time_chart.options.legend.position='right';
+        time_chart.options.legend.display=false;
 
         require.register("views/map", function(exports, require, module) {
             heat_color = d3.scaleLinear()
