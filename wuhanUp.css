@@ -441,5 +441,6 @@ div.path-tooltip {
     bottom:50%;
     width:20%;
     height:20%;
+    min-width: 50px;
 
 }
