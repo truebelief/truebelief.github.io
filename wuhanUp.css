@@ -431,12 +431,12 @@ div.path-tooltip {
 
 #time-plot
 {
-    min-width:50%;
-    min-height:50%;
+    min-width:50px;
+    min-height:100px;
 }
 #time-chart
 {
     position:absolute;
     display: inline-block;
-    top: 50px;
+    top: 10px;
 }
