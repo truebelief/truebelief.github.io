@@ -72,7 +72,7 @@ var heat_color;
                         data: [],
                         borderWidth: 0,
                         backgroundColor: '#ffffff',
-                        pointHoverRadius:0,
+                        pointHoverRadius:10,
                         order:0
                     }
                 ]
