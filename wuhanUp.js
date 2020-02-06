@@ -193,9 +193,11 @@ var heat_color;
                             svg.selectAll("*").remove();
 
 
+                            var adj_width=Math.min(500,width/2);
+
                             var projection = d3.geoMercator()
                                 // .center([107, 32]).scale(600)
-                                .center([107, 32]).scale(width/2.5)
+                                .center([107, 32]).scale(adj_width)
                                 .translate([width/2, height/2]);
 
                             var path = d3.geoPath()
