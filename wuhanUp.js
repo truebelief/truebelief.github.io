@@ -194,7 +194,8 @@ var heat_color;
 
 
                             var projection = d3.geoMercator()
-                                .center([107, 32]).scale(600)
+                                // .center([107, 32]).scale(600)
+                                .center([107, 32]).scale(width/2.5)
                                 .translate([width/2, height/2]);
 
                             var path = d3.geoPath()
