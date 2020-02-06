@@ -428,3 +428,18 @@ div.path-tooltip {
     pointer-events: none;
     font-size: 1.3rem;
 }
+
+#time-plot
+{
+    position:absolute;
+    display:block;
+}
+#time-chart
+{
+    position:absolute;
+    display: block;
+    bottom:25%;
+    width:300px;
+    height:300px;
+
+}
