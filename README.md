@@ -1,5 +1,5 @@
 # truebelief.github.io
-Visualizing the dynamic changes of the 2019-nCov in China
+Visualizing the dynamic changes of the COVID-19 (2019-nCov) in China
 
 Data from Wikimedia and inspired by lowyinstitute.
 
