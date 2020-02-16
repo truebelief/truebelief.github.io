@@ -115,15 +115,24 @@ body, h1, h2, h3 {
     position: relative
 }
 
-#map-scale-canvas-wrap:after {
+#map-scale-canvas-wrap .tick-1 {
     content: "";
     position: absolute;
-    left: 50%;
+    left: 25%;
     margin-left: -0.5px;
     border: 1px solid rgba(0, 0, 0, 0.2);
     top: 0;
     bottom: -4px
 }
+/*#map-scale-canvas-wrap .tick-2 {*/
+/*    content: "";*/
+/*    position: absolute;*/
+/*    left: 50%;*/
+/*    margin-left: -0.5px;*/
+/*    border: 1px solid rgba(0, 0, 0, 0.2);*/
+/*    top: 0;*/
+/*    bottom: -4px*/
+/*}*/
 
 #map-scale-canvas {
     width: 100%;
