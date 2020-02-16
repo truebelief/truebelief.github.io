@@ -1,7 +1,7 @@
 // var default_color="#D6ECEF";
 // var default_color="#ffcbb1";
 var default_color="#ffe9de";
-var base_opacity=0.7;
+var base_opacity=1.0;
 var light_opacity=0.5;
 
 var geo_features;
@@ -9,7 +9,8 @@ var daily_data;
 var scale_range;
 var scale_min;
 var scale_max;
-var divides=10;
+var scale_high;
+var divides=100;
 
 function get_range(data)
 {
@@ -27,7 +28,22 @@ var heat_color;
 // $(document).ready(function(){
 //
 // });
+function sortNumber(a,b) {
+    return a - b;
+}
 
+function quantile(array, percentile) {
+    array.sort(sortNumber);
+    index = percentile/100. * (array.length-1);
+    if (Math.floor(index) == index) {
+        result = array[index];
+    } else {
+        i = Math.floor(index)
+        fraction = index - i;
+        result = array[i] + (array[i+1] - array[i]) * fraction;
+    }
+    return result;
+}
 
 (function() {
     var getj = $.getJSON("daily.json");
@@ -42,6 +58,7 @@ var heat_color;
         var scale_values=get_range(daily_data);
         scale_min = Math.round(Math.min.apply(null, scale_values));
         scale_max = Math.round(Math.max.apply(null, scale_values));
+        scale_high = quantile(scale_values,99);
 
         scale_range=$.map($(Array(divides+1)),function(val, i) { return Math.round((scale_max-scale_min)*i/divides+scale_min); });
 
@@ -95,10 +112,12 @@ var heat_color;
         time_chart.options.legend.display=false;
 
         require.register("views/map", function(exports, require, module) {
+            // heat_color = d3.scaleLinear()
             heat_color = d3.scaleLinear()
             // heat_color = d3.scalePow().exponent(0.2)
             //     .range([default_color,"#ffcbb1","#ffb4a0","#e5989b","#b4838f","#6a6876"])
                 .range([default_color,"#ffb4a0","#e5989b"])
+            //     .range([default_color,"#ffb4a0"])
                 // .domain([0,1,10,50,100,300]);
                 .domain(scale_range);
 
@@ -123,7 +142,8 @@ var heat_color;
                     class MapView extends Backbone.View {
                         createScale() {
                             return this.scale=function(i) {
-                                return Math.round((scale_max-scale_min)*i/divides+scale_min);
+                                // return Math.round((scale_max-scale_min)*i/divides+scale_min);
+                                return Math.round((scale_high-scale_min)*i/divides+scale_min);
                             };
                         }
 
@@ -255,13 +275,18 @@ var heat_color;
                                     // .attr("fill",function(k) {return color_renderer(k)});
                                 })
                                 .on("mousedown", function (d,i) {
-
-
                                     time_chart.data.datasets[0].label="全国";
                                     time_chart.data.datasets[0].data=time_whole_data;
                                     time_chart.data.datasets[0].backgroundColor='#eeeeee';
 
                                     if (d3.select(this).attr("opacity")>0) {
+                                        tool_div.transition()
+                                            .duration('50')
+                                            .style("opacity", 1.0);
+                                        tool_div.html(d.properties.name.toString() + ":" + d.properties.values[current_num].toString())
+                                            .style("left", (Math.min(d3.event.pageX + 10, $('#map').width()-50)) + "px")
+                                            .style("top", (Math.min(d3.event.pageY - 15,$('#map').height()-20)) + "px");
+
                                         time_chart.data.datasets[1].label=d.properties.name.toString();
                                         time_chart.data.datasets[1].data=geo_features[i].properties.values;
                                         time_chart.data.datasets[1].backgroundColor='#aaaaaa';
@@ -277,12 +302,7 @@ var heat_color;
                                 })
                                 .on("mouseup", function (d,i) {
                                     if (d3.select(this).attr("opacity")>0) {
-                                        tool_div.transition()
-                                            .duration('50')
-                                            .style("opacity", 1.0);
-                                        tool_div.html(d.properties.name.toString() + ":" + d.properties.values[current_num].toString())
-                                            .style("left", (Math.min(d3.event.pageX + 10, $('#map').width()-50)) + "px")
-                                            .style("top", (Math.min(d3.event.pageY - 15,$('#map').height()-20)) + "px");
+
 
                                         time_chart.data.datasets[0].label="";
                                         time_chart.data.datasets[0].data=[];
@@ -293,6 +313,8 @@ var heat_color;
                                         time_chart.data.datasets[1].label=d.properties.name.toString();
                                         time_chart.data.datasets[1].data=geo_features[i].properties.values;
                                         time_chart.data.datasets[1].backgroundColor='#aaaaaa';
+                                        // time_chart.data.datasets[1].points.map(e=>e.pointRadius=1);
+                                        // time_chart.data.datasets[1].points[i].pointRadius=10;
                                         time_chart.update();
                                     }
                                 });
@@ -304,19 +326,26 @@ var heat_color;
                             canvas.width = canvas.width * 2;
                             canvas.height = 2;
                             context = canvas.getContext("2d");
+                            var new_divide=5;
+
                             for (i = k = 0, ref = canvas.width; (0 <= ref ? k < ref : k > ref); i = 0 <= ref ? ++k : --k) {
                                 s = Math.floor((divides+1) * (k / (canvas.width - 2))) / divides;
-                                // context.fillStyle = this.interpolate(s);
-                                context.fillStyle = this.interpolate(s*(scale_max-scale_min)+scale_min);
+                                context.fillStyle = this.interpolate((s*(scale_high-scale_min)+scale_min));
                                 context.fillRect(i, 0, 2, 2);
                             }
-                            var three_scales=[scale_min,Math.round(0.5*(scale_min+scale_max)),scale_max];
+                            // var three_scales=[scale_min,Math.round(0.5*(scale_high+scale_max)),scale_max];
+                            var three_scales=[scale_min,Math.round(0.25*(scale_high-scale_min)+scale_min),Math.round(0.5*(scale_high-scale_min)+scale_min), scale_max];
                             var scale_label=document.getElementsByClassName("map-legend-label scale");
+                            scale_label[0].innerHTML=three_scales[0];
+                            scale_label[1].innerHTML=three_scales[1];
+                            // scale_label[2].innerHTML=three_scales[2];
+                            scale_label[scale_label.length-1].innerHTML=three_scales[scale_label.length-1];
+                            // for (i=1;i<scale_label.length-1;i++)
+                            // {
+                            //     scale_label[i].css("left", "25%");
+                            //     scale_label[i].innerHTML=three_scales[i];
+                            // }
 
-                            for (i=0;i<scale_label.length;i++)
-                            {
-                                scale_label[i].innerHTML=three_scales[i];
-                            }
                         }
 
                         drawMinimap() {
