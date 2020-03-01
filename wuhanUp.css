@@ -31,10 +31,10 @@ body, h1, h2, h3 {
 }
 
 #wrapper {
-    max-width: 1280px;
-    max-height: 720px;
+    max-width: 2048px;
+    max-height: 960px;
     width: 100%;
-    height: 100%;
+    height: 95%;
     /*margin: auto;*/
     margin: 0px;
     position: relative;
@@ -52,11 +52,15 @@ body, h1, h2, h3 {
     left: 0;
     top: 0;
     bottom: 96px;
-    right: 0
+    right: 0;
+    margin: 0;
+    padding:0;
 }
 
 #map {
-    margin: 0
+    margin: 0;
+    padding:0;
+    max-width: 2048px
 }
 
 .province, .background {
@@ -119,20 +123,29 @@ body, h1, h2, h3 {
     content: "";
     position: absolute;
     left: 25%;
-    margin-left: -0.5px;
+    margin-left: 0px;
     border: 1px solid rgba(0, 0, 0, 0.2);
     top: 0;
     bottom: -4px
 }
-/*#map-scale-canvas-wrap .tick-2 {*/
-/*    content: "";*/
-/*    position: absolute;*/
-/*    left: 50%;*/
-/*    margin-left: -0.5px;*/
-/*    border: 1px solid rgba(0, 0, 0, 0.2);*/
-/*    top: 0;*/
-/*    bottom: -4px*/
-/*}*/
+#map-scale-canvas-wrap .tick-2 {
+    content: "";
+    position: absolute;
+    left: 50%;
+    margin-left:0px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    top: 0;
+    bottom: -4px
+}
+#map-scale-canvas-wrap .tick-3 {
+    content: "";
+    position: absolute;
+    left: 75%;
+    margin-left: 0px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    top: 0;
+    bottom: -4px
+}
 
 #map-scale-canvas {
     width: 100%;
@@ -298,7 +311,7 @@ body, h1, h2, h3 {
     }
 
     #map-wrapper {
-        top: 20px
+        top: 10px
     }
 
     #map-scale {
@@ -323,7 +336,7 @@ body, h1, h2, h3 {
     }
 }
 
-@media (max-width: 800px) {
+@media (max-width: 1280px) {
     #map-wrapper {
         top: 0
     }
@@ -450,5 +463,5 @@ div.path-tooltip {
     position:absolute;
     display: inline-block;
     top:0;
-    left:1%
+    right:1%
 }
