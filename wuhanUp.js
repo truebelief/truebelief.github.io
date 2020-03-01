@@ -1,8 +1,10 @@
 // var default_color="#D6ECEF";
 // var default_color="#ffcbb1";
 var default_color="#ffe9de";
+var default_bg_color="#dddddd";
 var base_opacity=1.0;
 var light_opacity=0.5;
+// var trans_opacity=0.2;
 
 var geo_features;
 var daily_data;
@@ -10,7 +12,9 @@ var scale_range;
 var scale_min;
 var scale_max;
 var scale_high;
+var scales;
 var divides=100;
+
 
 function get_range(data)
 {
@@ -56,11 +60,16 @@ function quantile(array, percentile) {
         // console.log(daily_data[0].湖北省);
 
         var scale_values=get_range(daily_data);
-        scale_min = Math.round(Math.min.apply(null, scale_values));
+        scale_min = Math.max(1,Math.round(Math.min.apply(null, scale_values)));
         scale_max = Math.round(Math.max.apply(null, scale_values));
-        scale_high = quantile(scale_values,99);
+        // scale_high = quantile(scale_values,99);
+        scale_high = scale_max;
 
-        scale_range=$.map($(Array(divides+1)),function(val, i) { return Math.round((scale_max-scale_min)*i/divides+scale_min); });
+
+        scales=[1,10,100,400,1000,4000,scale_high];
+
+
+        scale_range=$.map($(Array(divides+1)),function(val, i) { return Math.round((scale_high-scale_min)*i/divides+scale_min); });
 
         var dt = daily_data.map(e => Object.values(e).slice(1));
         // var time_data=dt[0].map((col, i) => dt.map(row => row[i]));
@@ -98,7 +107,8 @@ function quantile(array, percentile) {
                 scales: {
                     yAxes: [{
                         ticks: {
-                            reverse: false
+                            reverse: false,
+                            stepSize:50
                         }
                     }]
                 }
@@ -115,11 +125,11 @@ function quantile(array, percentile) {
             // heat_color = d3.scaleLinear()
             heat_color = d3.scaleLinear()
             // heat_color = d3.scalePow().exponent(0.2)
-            //     .range([default_color,"#ffcbb1","#ffb4a0","#e5989b","#b4838f","#6a6876"])
-                .range([default_color,"#ffb4a0","#e5989b"])
+                .range([default_color,"#ffcbb1","#ffb4a0","#e5989b","#b4838f","#6a6876",'#000000'])
+                // .range([default_color,"#ffb4a0","#e5989b",'#000000'])
             //     .range([default_color,"#ffb4a0"])
-                // .domain([0,1,10,50,100,300]);
-                .domain(scale_range);
+                .domain(scales);
+                // .domain(scale_range);
 
             var MapView;
             return MapView = (function() {
@@ -155,7 +165,8 @@ function quantile(array, percentile) {
                                 this.data.items = this.data[opts.items];
                             }
 
-                            return d3.json("data/china.geojson").then((topo) => {
+                            // return d3.json("data/china.geojson").then((topo) => {
+                            return d3.json("data/world.geojson").then((topo) => {
                                 this.$elements = {
                                     blocks: {},
                                     labels: {},
@@ -163,7 +174,7 @@ function quantile(array, percentile) {
                                     scale: this.$("#map-scale-canvas"),
                                     date: this.$("#chart-date"),
                                     minimap: this.$("#map-timeline-minimap"),
-                                    keys: this.$(".chart-title-label")
+                                    keys: this.$(".chart-title-label"),
                                 };
                                 this.$el.addClass("loading");
                                 this.drawMap(topo);
@@ -206,19 +217,23 @@ function quantile(array, percentile) {
                             map_scale_max.innerHTML=this.data.scale_text[this.data.scale_text.length-1];
 
 
-                            var width = this.$elements.map.width();
-                            var height = this.$elements.map.height();
+                            // var width = this.$elements.map.width();
+                            var width = $('#map').width();
+                            var height = $('#map').height();
 
                             var svg = d3.select("svg");
                             svg.selectAll("*").remove();
 
 
-                            var adj_scale=Math.min(500,width/1.5);
+                            var adj_scale=Math.min(250,height/2);
+                            // var adj_scale=Math.min(200,height);
+                            // var adj_scale=Math.min(200,height);
+
 
                             var projection = d3.geoMercator()
                                 // .center([107, 32]).scale(600)
                                 .center([107, 32]).scale(adj_scale)
-                                .translate([width/2, height/2+30]);
+                                .translate([width/2, height/2]);
 
                             var path = d3.geoPath()
                                 .projection(projection);
@@ -228,7 +243,10 @@ function quantile(array, percentile) {
                                 .attr("width", width)
                                 .attr("height", height)
                                 .append("g")
-                                .attr("transform", "translate(0,0)");
+                                .attr("transform", "translate("+(width/4-adj_scale/2)+",0)");
+                            // svg.style.width=2000;
+                            // svg.style.height=624;
+                            // svg.css('margin',0);
 
 
                             var svg_enter=svg.selectAll("path")
@@ -253,7 +271,7 @@ function quantile(array, percentile) {
                                     return "rtg-"+d.properties.id;
                                 })
                                 .on("mouseover",function(d,i){
-                                    if (d3.select(this).attr("opacity")>0) {
+                                    if (d3.select(this).attr("activated")>0) {
                                         d3.select(this).transition()
                                             .duration('50')
                                             .attr('opacity', light_opacity)
@@ -262,7 +280,7 @@ function quantile(array, percentile) {
                                     }
                                 })
                                 .on("mouseout",function(d,i){
-                                    if (d3.select(this).attr("opacity")>0) {
+                                    if (d3.select(this).attr("activated")>0) {
                                         d3.select(this).transition()
                                             .duration('50')
                                             .attr('opacity', base_opacity)
@@ -279,13 +297,13 @@ function quantile(array, percentile) {
                                     time_chart.data.datasets[0].data=time_whole_data;
                                     time_chart.data.datasets[0].backgroundColor='#eeeeee';
 
-                                    if (d3.select(this).attr("opacity")>0) {
+                                    if (d3.select(this).attr("activated")>0) {
                                         tool_div.transition()
                                             .duration('50')
                                             .style("opacity", 1.0);
                                         tool_div.html(d.properties.name.toString() + ":" + d.properties.values[current_num].toString())
-                                            .style("left", (Math.min(d3.event.pageX + 10, $('#map').width()-50)) + "px")
-                                            .style("top", (Math.min(d3.event.pageY - 15,$('#map').height()-20)) + "px");
+                                            .style("left", (Math.min(d3.event.pageX + 10, width-50)) + "px")
+                                            .style("top", (Math.min(d3.event.pageY - 15,height-20)) + "px");
 
                                         time_chart.data.datasets[1].label=d.properties.name.toString();
                                         time_chart.data.datasets[1].data=geo_features[i].properties.values;
@@ -301,7 +319,7 @@ function quantile(array, percentile) {
                                     time_chart.update();
                                 })
                                 .on("mouseup", function (d,i) {
-                                    if (d3.select(this).attr("opacity")>0) {
+                                    if (d3.select(this).attr("activated")>0) {
 
 
                                         time_chart.data.datasets[0].label="";
@@ -326,20 +344,45 @@ function quantile(array, percentile) {
                             canvas.width = canvas.width * 2;
                             canvas.height = 2;
                             context = canvas.getContext("2d");
-                            var new_divide=5;
+                            // var new_divide=5;
 
-                            for (i = k = 0, ref = canvas.width; (0 <= ref ? k < ref : k > ref); i = 0 <= ref ? ++k : --k) {
-                                s = Math.floor((divides+1) * (k / (canvas.width - 2))) / divides;
-                                context.fillStyle = this.interpolate((s*(scale_high-scale_min)+scale_min));
+                            var fixed_upper=Math.round(4000);
+                            var fixed_lower=Math.round(0.25/0.75*(fixed_upper-scale_min)+scale_min);
+                            var fixed_middle=Math.round(0.5/0.75*(fixed_upper-scale_min)+scale_min);
+
+                            // var fixed_lower=Math.round(scale_high*0.25);
+                            // var fixed_middle=Math.round(scale_high*0.5);
+                            // var fixed_upper=Math.round(scale_high*0.75);
+
+
+                            for (i = k = 0, ref = canvas.width*0.75; (0 <= ref ? k < ref : k > ref); i = 0 <= ref ? ++k : --k) {
+                                s = Math.floor((divides+1) * (k / (canvas.width*0.75))) / divides;
+                                context.fillStyle = this.interpolate((s*(fixed_upper-scale_min)+scale_min));
                                 context.fillRect(i, 0, 2, 2);
                             }
+                            for (i = k = canvas.width*0.75, ref = canvas.width; (0 <= ref ? k < ref : k > ref); i = 0 <= ref ? ++k : --k) {
+                                s = Math.floor((divides+1) * ((k-canvas.width*0.75) / (canvas.width-canvas.width*0.75))) / divides;
+                                context.fillStyle = this.interpolate((s*(scale_high-fixed_upper)+fixed_upper));
+                                context.fillRect(i, 0, 2, 2);
+                            }
+
+                            // for (i = k = 0, ref = canvas.width; (0 <= ref ? k < ref : k > ref); i = 0 <= ref ? ++k : --k) {
+                            //     s = Math.floor((divides+1) * (k / (canvas.width - 2))) / divides;
+                            //     context.fillStyle = this.interpolate((s*(scale_high-scale_min)+scale_min));
+                            //     context.fillRect(i, 0, 2, 2);
+                            // }
+
                             // var three_scales=[scale_min,Math.round(0.5*(scale_high+scale_max)),scale_max];
-                            var three_scales=[scale_min,Math.round(0.25*(scale_high-scale_min)+scale_min),Math.round(0.5*(scale_high-scale_min)+scale_min), scale_max];
+                            var three_scales=[scale_min,fixed_lower, fixed_middle,fixed_upper, Math.round(scale_high)];
                             var scale_label=document.getElementsByClassName("map-legend-label scale");
+
+                            // $('#tick-1').css('left',(fixed_upper-scale_min)/(scale_high-scale_min)*100+'%');
                             scale_label[0].innerHTML=three_scales[0];
                             scale_label[1].innerHTML=three_scales[1];
+                            scale_label[2].innerHTML=three_scales[2];
+                            scale_label[3].innerHTML=three_scales[3];
                             // scale_label[2].innerHTML=three_scales[2];
-                            scale_label[scale_label.length-1].innerHTML=three_scales[scale_label.length-1];
+                            scale_label[scale_label.length-1].innerHTML=three_scales[three_scales.length-1];
                             // for (i=1;i<scale_label.length-1;i++)
                             // {
                             //     scale_label[i].css("left", "25%");
@@ -435,8 +478,10 @@ function quantile(array, percentile) {
                                     value = interpolate(sx, sy, p);
 
                                     d3.select("#rtg-"+data[k]['properties']['id'])
-                                        .attr("opacity", !(vx && vy) ? 0 : base_opacity)
-                                        .attr("fill", this.interpolate(value));
+                                        // .attr("opacity", !(vx && vy) ? 0 : base_opacity)
+                                        .attr("activated", !(vx && vy) ? 0 : 1)
+                                        // .attr("fill", this.interpolate(value));
+                                        .attr("fill", !(vx && vy) ? default_bg_color:this.interpolate(value));
                                     current_num = Math.round(this.currentTime * (this.data.scale.length - 1));
                                 }
                             }
@@ -492,11 +537,12 @@ function quantile(array, percentile) {
                         }
 
                         end() {
+                            var speed=25;
                             var t;
                             t = this.data.scale.length - 1;
                             window.setTimeout((() => {
                                 return this.render(t);
-                            }), this.playing ? 100 : 0);
+                            }), this.playing ? speed : 0);
                             this.currentTime = 1;
                             this.playing = false;
                             return this.$el.removeClass("playing");
