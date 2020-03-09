@@ -85,7 +85,7 @@ function quantile(array, percentile) {
                 labels: daily_data.map(e=>e['日期'].substring(5)),
                 datasets: [
                     {
-                        label: '全国',
+                        label: '全球',
                         data: time_whole_data,
                         borderWidth: 1,
                         backgroundColor: '#eeeeee',
