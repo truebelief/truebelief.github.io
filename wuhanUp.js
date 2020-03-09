@@ -293,7 +293,7 @@ function quantile(array, percentile) {
                                     // .attr("fill",function(k) {return color_renderer(k)});
                                 })
                                 .on("mousedown", function (d,i) {
-                                    time_chart.data.datasets[0].label="全国";
+                                    time_chart.data.datasets[0].label="全球";
                                     time_chart.data.datasets[0].data=time_whole_data;
                                     time_chart.data.datasets[0].backgroundColor='#eeeeee';
 
