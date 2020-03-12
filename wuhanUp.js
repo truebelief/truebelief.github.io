@@ -27,8 +27,7 @@ var time_chart;
 $(".button-lang").click(function() {
     $(".button-lang").removeClass('current-lang');
     $(this).addClass('current-lang');
-    $('[lang="zh"]').hide();
-    $('[lang="en"]').hide();
+
     hideLanguages();
     $('[lang="'+$(this)[0].id.substring(0,2)+'"]').show();
     current_lang=$(this)[0].id.substring(0,2);
