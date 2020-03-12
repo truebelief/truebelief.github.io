@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--<html lang="en">-->
+<html>
 <head>
     <meta charset="UTF-8">
-    <title>全球COVID-19(2019-nCov)疫情变化追踪图</title>
+<!--    <title lang="zh">全球COVID-19(2019-nCov)疫情变化追踪图</title>-->
+    <title lang="en">Global COVID-19(2019-nCov) Spread</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
-    <meta http-equiv="content-type" content="text/html;UTF-8">
-    <meta http-equiv="content-language" content="en">
+<!--    <meta http-equiv="content-type" content="text/html;UTF-8">-->
+<!--    <meta http-equiv="content-language" content="zh">-->
     <link rel="stylesheet" href="vendor/app.37391c5.css">
     <link rel="stylesheet" href="wuhanUp.css">
 </head>
@@ -15,7 +17,6 @@
 
 
 <div id="wrapper" data-view="map">
-
     <div id="map-wrapper">
         <svg id="map" width="100%" height="100%">
             <text x="50%" y="50%" text-anchor="middle">Loading map...</text>
@@ -29,19 +30,26 @@
 
 
         <div id="map-scale">
-            <div class="map-legend-label txt-bold">累计确诊病例数</div>
+            <div class="map-legend-label txt-bold" lang="zh">累计确诊病例数</div>
+            <div class="map-legend-label txt-bold" lang="zh_tw">累計確診病例數</div>
+            <div class="map-legend-label txt-bold" lang="ja">累積確認症例</div>
+            <div class="map-legend-label txt-bold" lang="en">Cumulative confirmed cases</div>
+            <div class="map-legend-label txt-bold" lang="fr">Cas confirmés cumulatifs</div>
+            <div class="map-legend-label txt-bold" lang="es">Casos confirmados acumulados</div>
+            <div class="map-legend-label txt-bold" lang="ru">Совокупные подтвержденные случаи</div>
+            <div class="map-legend-label txt-bold" lang="de">Kumulativ bestätigte Fälle</div>
             <div id="map-scale-canvas-wrap">
                 <canvas id="map-scale-canvas"></canvas>
-                <div class="tick-1"></div>
-                <div class="tick-2"></div>
-                <div class="tick-3"></div>
+                <div class="tick" style="left:9.375%"></div>
+                <div class="tick" style="left:37.5%"></div>
+                <div class="tick" style="left:75%"></div>
             </div>
-            <div class="flex flex-between">
-                <div class="map-legend-label scale">0</div>
-                <div class="map-legend-label scale"></div>
-                <div class="map-legend-label scale"></div>
-                <div class="map-legend-label scale"></div>
-                <div class="map-legend-label scale">100</div>
+            <div style="padding-bottom: 10px">
+                <div class="map-legend-label-scale" style="left:0%">1</div>
+                <div class="map-legend-label-scale" style="left:9.375%"></div>
+                <div class="map-legend-label-scale" style="left:37.5%"></div>
+                <div class="map-legend-label-scale" style="left:75%"></div>
+                <div class="map-legend-label-scale" style="left:100%">100</div>
             </div>
         </div>
         <div id="chart-date"></div>
@@ -78,15 +86,50 @@
             <div class="map-legend-label" id="map-scale-max"></div>
         </div>
     </div>
-    <small class="txt-sans" id="chart-source"> 作者(ZX), 数据来源(
-        <a href="https://en.wikipedia.org/wiki/Template:2019%E2%80%9320_coronavirus_outbreak_data/WHO_situation_reports">维基百科</a>
-        )
-        <a href="https://interactives.lowyinstitute.org/charts/china-us-trade-dominance/us-china-competition/">网页参考</a>
+    <small class="txt-sans" id="chart-source">
+        <span lang="zh">作者(ZXi), 数据来源</span>
+        <span lang="en">Author(ZXi), Date source</span>
+        <span lang="zh_tw">作者(ZXi), 數據來源</span>
+        <span lang="ja">作者(ZXi), データソース</span>
+        <span lang="fr">Auteur(ZXi), Source de données</span>
+        <span lang="es">Autor(ZXi), Fuente de datos</span>
+        <span lang="ru">автор(ZXi), Источник данных</span>
+        <span lang="de">Autor(ZXi), Datenquelle</span>
+        <a href="https://en.wikipedia.org/wiki/Template:2019%E2%80%9320_coronavirus_outbreak_data/WHO_situation_reports">(
+        <span lang="zh">维基百科</span>
+        <span lang="en">Wikipedia</span>
+        <span lang="zh_tw">維基百科</span>
+        <span lang="ja">ウィキペディア</span>
+        <span lang="fr">Wikipédia</span>
+        <span lang="es">Wikipedia</span>
+        <span lang="ru">Википедия</span>
+        <span lang="de">Wikipedia</span>
+        )</a>,
+        <a href="https://interactives.lowyinstitute.org/charts/china-us-trade-dominance/us-china-competition/">
+            <span lang="zh">网页参考</span>
+            <span lang="en">Template</span>
+            <span lang="zh_tw">模板</span>
+            <span lang="ja">テンプレート</span>
+            <span lang="fr">Gabarit</span>
+            <span lang="es">Plantilla</span>
+            <span lang="ru">шаблон</span>
+            <span lang="de">Vorlage</span>
+        </a>
     </small>
 
     <div id="time-chart">
         <canvas id="time-plot"></canvas>
     </div>
+    <ul id="lang-switch">
+        <li id="zh-lang" class="button-lang">简体</li>
+        <li id="zh-tw-lang" class="button-lang">繁體</li>
+        <li id="ja-lang" class="button-lang">日本語</li>
+        <li id="en-lang" class="button-lang current-lang">English</li>
+        <li id="fr-lang" class="button-lang">Français</li>
+        <li id="es-lang" class="button-lang">Espanol</li>
+        <li id="de-lang" class="button-lang">Deutsch</li>
+        <li id="ru-lang" class="button-lang">Pусский</li>
+    </ul>
 </div>
 
 
@@ -98,6 +141,7 @@
 <script type="text/javascript" src="vendor/vendor.37391c5.js"></script>
 <script type="text/javascript" src="vendor/app.37391c5.js"></script>
 <script type="text/javascript" src="vendor/d3.v5.js"></script>
+<script type="text/javascript" src="dict.js"></script>
 <script type="text/javascript" src="wuhanUp.js"></script>
 
 
