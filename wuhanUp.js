@@ -15,8 +15,57 @@ var scale_high;
 var scales;
 var divides=100;
 
+var current_lang;
+var current_date=0;
+var current_region="";
+var dict_lang=dict;
+var scale_text;
+var time_chart;
 
-function get_range(data)
+
+
+$(".button-lang").click(function() {
+    $(".button-lang").removeClass('current-lang');
+    $(this).addClass('current-lang');
+    $('[lang="zh"]').hide();
+    $('[lang="en"]').hide();
+    hideLanguages();
+    $('[lang="'+$(this)[0].id.substring(0,2)+'"]').show();
+    current_lang=$(this)[0].id.substring(0,2);
+    updateLanguage();
+});
+function updateLanguage()
+{
+    // var chart_date=document.getElementById("chart-date");
+    // var map_scale_min=document.getElementById("map-scale-min");
+    // var map_scale_max=document.getElementById("map-scale-max");
+    // map_scale_min.innerHTML=dict_lang[current_lang][scale_text[0]];
+    // map_scale_max.innerHTML=dict_lang[current_lang][scale_text[scale_text.length-1]];
+    // chart_date.innerHTML=dict_lang[current_lang][scale_text[current_date]];
+    time_chart.data.datasets[0].label=dict_lang[current_lang]['全球'];
+    // if (daily_data)
+    // {
+    //     time_chart.data.labels=daily_data.map(e=>dict_lang[current_lang][e['日期']]);
+    // }
+    if (current_region)
+    {
+        time_chart.data.datasets[1].label=dict_lang[current_lang][current_region];
+    }
+    time_chart.update();
+}
+function hideLanguages(){
+    $('[lang="zh"]').hide();
+    $('[lang="en"]').hide();
+    $('[lang="zh_tw"]').hide();
+    $('[lang="ja"]').hide();
+    $('[lang="fr"]').hide();
+    $('[lang="es"]').hide();
+    $('[lang="ru"]').hide();
+    $('[lang="de"]').hide();
+}
+
+
+function getRange(data)
 {
     var values =[];
     var dt = data.map(e => Object.values(e).slice(1));
@@ -32,24 +81,30 @@ var heat_color;
 // $(document).ready(function(){
 //
 // });
-function sortNumber(a,b) {
-    return a - b;
-}
 
-function quantile(array, percentile) {
-    array.sort(sortNumber);
-    index = percentile/100. * (array.length-1);
-    if (Math.floor(index) == index) {
-        result = array[index];
-    } else {
-        i = Math.floor(index)
-        fraction = index - i;
-        result = array[i] + (array[i+1] - array[i]) * fraction;
-    }
-    return result;
-}
+// function sortNumber(a,b) {
+//     return a - b;
+// }
+//
+// function quantile(array, percentile) {
+//     array.sort(sortNumber);
+//     index = percentile/100. * (array.length-1);
+//     if (Math.floor(index) == index) {
+//         result = array[index];
+//     } else {
+//         i = Math.floor(index)
+//         fraction = index - i;
+//         result = array[i] + (array[i+1] - array[i]) * fraction;
+//     }
+//     return result;
+// }
 
 (function() {
+    hideLanguages();
+    $('[lang="en"]').show();
+
+    current_lang="en";
+
     var getj = $.getJSON("daily.json");
     getj.done(function(data) {
 
@@ -59,7 +114,7 @@ function quantile(array, percentile) {
         // console.log(daily_data[0].日期);
         // console.log(daily_data[0].湖北省);
 
-        var scale_values=get_range(daily_data);
+        var scale_values=getRange(daily_data);
         scale_min = Math.max(1,Math.round(Math.min.apply(null, scale_values)));
         scale_max = Math.round(Math.max.apply(null, scale_values));
         // scale_high = quantile(scale_values,99);
@@ -82,10 +137,11 @@ function quantile(array, percentile) {
         var options = {
             type: 'line',
             data: {
-                labels: daily_data.map(e=>e['日期'].substring(5)),
+                // labels: daily_data.map(e=>dict_lang[current_lang][e['日期']]),
+                labels: daily_data.map(e=>e['日期']),
                 datasets: [
                     {
-                        label: '全球',
+                        label: dict_lang[current_lang]['全球'],
                         data: time_whole_data,
                         borderWidth: 1,
                         backgroundColor: '#eeeeee',
@@ -115,8 +171,7 @@ function quantile(array, percentile) {
             }
         };
 
-
-        var time_chart= new Chart(ctx, options);
+        time_chart= new Chart(ctx, options);
 
         // time_chart.options.legend.position='right';
         time_chart.options.legend.display=false;
@@ -181,6 +236,7 @@ function quantile(array, percentile) {
                                 this.drawScale();
                                 this.drawMinimap();
                                 this.reset();
+
                                 window.setTimeout((() => {
                                     this.play();
                                     return this.$el.removeClass("loading");
@@ -204,17 +260,19 @@ function quantile(array, percentile) {
                                 geo_features.map(e => e['properties']['values'].push(Object.values(x)[keyname.findIndex(ele => ele.includes(e.properties.name))] || 0));//replace undefined and null values with 0
                             });
 
+                            scale_text=daily_data.map(e=>e['日期']);
+
                             // this.data.scale=daily_data.map(e=>e['日期']);
                             this.data.scale=$.map($(Array(daily_data.length)),function(val, i) { return i; });
-                            this.data.scale_text=daily_data.map(e=>e['日期']);
+                            this.data.scale_text=scale_text;
                             this.data.items=geo_features;
-
 
                             var map_scale_min=document.getElementById("map-scale-min");
                             var map_scale_max=document.getElementById("map-scale-max");
+                            map_scale_min.innerHTML=scale_text[0];
+                            map_scale_max.innerHTML=scale_text[scale_text.length-1];
 
-                            map_scale_min.innerHTML=this.data.scale_text[0];
-                            map_scale_max.innerHTML=this.data.scale_text[this.data.scale_text.length-1];
+                            updateLanguage();
 
 
                             // var width = this.$elements.map.width();
@@ -293,7 +351,7 @@ function quantile(array, percentile) {
                                     // .attr("fill",function(k) {return color_renderer(k)});
                                 })
                                 .on("mousedown", function (d,i) {
-                                    time_chart.data.datasets[0].label="全球";
+                                    time_chart.data.datasets[0].label=dict_lang[current_lang]['全球'];
                                     time_chart.data.datasets[0].data=time_whole_data;
                                     time_chart.data.datasets[0].backgroundColor='#eeeeee';
 
@@ -301,34 +359,33 @@ function quantile(array, percentile) {
                                         tool_div.transition()
                                             .duration('50')
                                             .style("opacity", 1.0);
-                                        tool_div.html(d.properties.name.toString() + ":" + d.properties.values[current_num].toString())
+                                        tool_div.html(dict_lang[current_lang][d.properties.name.toString()] + ":" + d.properties.values[current_num].toString())
                                             .style("left", (Math.min(d3.event.pageX + 10, width-50)) + "px")
                                             .style("top", (Math.min(d3.event.pageY - 15,height-20)) + "px");
 
-                                        time_chart.data.datasets[1].label=d.properties.name.toString();
+                                        current_region=d.properties.name.toString();
+                                        time_chart.data.datasets[1].label=dict_lang[current_lang][current_region];
                                         time_chart.data.datasets[1].data=geo_features[i].properties.values;
                                         time_chart.data.datasets[1].backgroundColor='#aaaaaa';
                                     }else
                                     {
+                                        current_region="";
                                         time_chart.data.datasets[1].label="";
                                         time_chart.data.datasets[1].data=[];
                                         time_chart.data.datasets[1].backgroundColor='#ffffff';
                                         time_chart.data.datasets[1].borderColor='#ffffff';
                                     }
-
                                     time_chart.update();
                                 })
                                 .on("mouseup", function (d,i) {
                                     if (d3.select(this).attr("activated")>0) {
-
-
                                         time_chart.data.datasets[0].label="";
                                         time_chart.data.datasets[0].data=[];
                                         time_chart.data.datasets[0].backgroundColor='#ffffff';
                                         time_chart.data.datasets[0].borderColor='#ffffff';
                                         // time_chart.options.legend.display=false;
-
-                                        time_chart.data.datasets[1].label=d.properties.name.toString();
+                                        current_region=d.properties.name.toString();
+                                        time_chart.data.datasets[1].label=dict_lang[current_lang][current_region];
                                         time_chart.data.datasets[1].data=geo_features[i].properties.values;
                                         time_chart.data.datasets[1].backgroundColor='#aaaaaa';
                                         // time_chart.data.datasets[1].points.map(e=>e.pointRadius=1);
@@ -347,8 +404,12 @@ function quantile(array, percentile) {
                             // var new_divide=5;
 
                             var fixed_upper=Math.round(4000);
-                            var fixed_lower=Math.round(0.25/0.75*(fixed_upper-scale_min)+scale_min);
-                            var fixed_middle=Math.round(0.5/0.75*(fixed_upper-scale_min)+scale_min);
+                            var fixed_middle= 2000;
+                            var fixed_lower= 500;
+
+
+                            // var fixed_lower=Math.round(0.25/0.75*(fixed_upper-scale_min)+scale_min);
+                            // var fixed_middle=Math.round(0.5/0.75*(fixed_upper-scale_min)+scale_min);
 
                             // var fixed_lower=Math.round(scale_high*0.25);
                             // var fixed_middle=Math.round(scale_high*0.5);
@@ -374,7 +435,7 @@ function quantile(array, percentile) {
 
                             // var three_scales=[scale_min,Math.round(0.5*(scale_high+scale_max)),scale_max];
                             var three_scales=[scale_min,fixed_lower, fixed_middle,fixed_upper, Math.round(scale_high)];
-                            var scale_label=document.getElementsByClassName("map-legend-label scale");
+                            var scale_label=document.getElementsByClassName("map-legend-label-scale");
 
                             // $('#tick-1').css('left',(fixed_upper-scale_min)/(scale_high-scale_min)*100+'%');
                             scale_label[0].innerHTML=three_scales[0];
@@ -465,7 +526,13 @@ function quantile(array, percentile) {
                             x = Math.floor(t);
                             y = Math.min(x + 1, this.data.scale.length - 1);
                             p = t - x;
-                            this.$elements.date.html(this.data.scale_text[this.data.scale[0] + Math.round(t)].slice(5));
+                            // this.$elements.date.html(this.data.scale_text[this.data.scale[0] + Math.round(t)]);
+                            current_date=this.data.scale[0] + Math.round(t);
+                            updateLanguage();
+
+                            var chart_date=document.getElementById("chart-date");
+                            chart_date.innerHTML=scale_text[current_date];
+
                             data = geo_features;
                             for (k = 0, len = data.length; k < len; k++) {
 
