@@ -23,16 +23,27 @@ var scale_text;
 var time_chart;
 
 
-
 $(".button-lang").click(function() {
     $(".button-lang").removeClass('current-lang');
     $(this).addClass('current-lang');
+    $("#dropbtn")[0].innerText=$(this)[0].innerText;
 
     hideLanguages();
     $('[lang="'+$(this)[0].id.substring(0,2)+'"]').show();
     current_lang=$(this)[0].id.substring(0,2);
     updateLanguage();
+
+
 });
+// $(".button-lang").click(function() {
+//     $(".button-lang").removeClass('current-lang');
+//     $(this).addClass('current-lang');
+//
+//     hideLanguages();
+//     $('[lang="'+$(this)[0].id.substring(0,2)+'"]').show();
+//     current_lang=$(this)[0].id.substring(0,2);
+//     updateLanguage();
+// });
 function updateLanguage()
 {
     // var chart_date=document.getElementById("chart-date");
@@ -62,8 +73,21 @@ function hideLanguages(){
     $('[lang="ru"]').hide();
     $('[lang="de"]').hide();
 }
-
-
+$("#dropbtn").click(function(){
+    document.getElementById("lang-dropdown").classList.toggle("show");
+});
+window.onclick = function(event) {
+    if (!event.target.matches('#dropbtn')) {
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        var i;
+        for (i = 0; i < dropdowns.length; i++) {
+            var openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+            }
+        }
+    }
+}
 function getRange(data)
 {
     var values =[];
