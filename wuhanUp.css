@@ -29,6 +29,35 @@ body.embed-false {
 body, h1, h2, h3 {
     font-family: Wide, sans-serif
 }
+#lang-switch{
+    position:absolute;
+    margin-top:5px;
+}
+.button-lang {
+    font-size:12px;
+    background-color: #444;
+    color: #FFF;
+    padding: 8px 20px;
+    border-radius: 5px;
+    -webkit-transition: background-color .3s ease-in-out;
+    -moz-transition: background-color .3s ease-in-out;
+    -o-transition: background-color .3s ease-in-out;
+    -ms-transition: background-color .3s ease-in-out;
+    transition: background-color .3s ease-in-out;
+}
+.button-lang:hover, .current-lang {
+    background-color: #777;
+    cursor: pointer;
+    -webkit-transition: background-color .3s ease-in-out;
+    -moz-transition: background-color .3s ease-in-out;
+    -o-transition: background-color .3s ease-in-out;
+    -ms-transition: background-color .3s ease-in-out;
+    transition: background-color .3s ease-in-out;
+}
+/*ul li {*/
+/*    width: auto;*/
+/*    display: inline;*/
+/*}*/
 
 #wrapper {
     max-width: 2048px;
@@ -89,6 +118,10 @@ body, h1, h2, h3 {
 #map-scale .map-legend-label {
     min-width: 44px
 }
+.map-legend-label-scale
+{
+    position:absolute;
+}
 
 .map-legend-label-no-data {
     margin-bottom: 16px;
@@ -119,33 +152,16 @@ body, h1, h2, h3 {
     position: relative
 }
 
-#map-scale-canvas-wrap .tick-1 {
+#map-scale-canvas-wrap .tick {
     content: "";
     position: absolute;
-    left: 25%;
+    left: 9.375%;
     margin-left: 0px;
     border: 1px solid rgba(0, 0, 0, 0.2);
     top: 0;
     bottom: -4px
 }
-#map-scale-canvas-wrap .tick-2 {
-    content: "";
-    position: absolute;
-    left: 50%;
-    margin-left:0px;
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    top: 0;
-    bottom: -4px
-}
-#map-scale-canvas-wrap .tick-3 {
-    content: "";
-    position: absolute;
-    left: 75%;
-    margin-left: 0px;
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    top: 0;
-    bottom: -4px
-}
+
 
 #map-scale-canvas {
     width: 100%;
@@ -233,8 +249,8 @@ body, h1, h2, h3 {
 }
 
 #chart-date {
-    left: 49%;
-    bottom: 108px;
+    left: 50%;
+    bottom: 50px;
     width: 4.8em;
     line-height: 1em;
     margin: 0 -1.4em;
