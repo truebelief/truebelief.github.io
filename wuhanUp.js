@@ -56,7 +56,7 @@ function updateLanguage()
 function hideLanguages(){
     $('[lang="zh"]').hide();
     $('[lang="en"]').hide();
-    $('[lang="zh_tw"]').hide();
+    $('[lang="tw"]').hide();
     $('[lang="ja"]').hide();
     $('[lang="fr"]').hide();
     $('[lang="es"]').hide();
