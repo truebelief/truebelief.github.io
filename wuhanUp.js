@@ -6,8 +6,12 @@ var base_opacity=1.0;
 var light_opacity=0.5;
 // var trans_opacity=0.2;
 
-var geo_features;
-var daily_data;
+var geo_features_case;
+var geo_features_death;
+
+var daily_case;
+var daily_death;
+
 var scale_range;
 var scale_min;
 var scale_max;
@@ -20,8 +24,9 @@ var current_date=0;
 var current_region="";
 var dict_lang=dict;
 var scale_text;
-var time_chart;
-
+var time_chart_case;
+var time_chart_death;
+var heat_color;
 
 $(".button-lang").click(function() {
     $(".button-lang").removeClass('current-lang');
@@ -32,36 +37,23 @@ $(".button-lang").click(function() {
     $('[lang="'+$(this)[0].id.substring(0,2)+'"]').show();
     current_lang=$(this)[0].id.substring(0,2);
     updateLanguage();
-
-
 });
-// $(".button-lang").click(function() {
-//     $(".button-lang").removeClass('current-lang');
-//     $(this).addClass('current-lang');
-//
-//     hideLanguages();
-//     $('[lang="'+$(this)[0].id.substring(0,2)+'"]').show();
-//     current_lang=$(this)[0].id.substring(0,2);
-//     updateLanguage();
-// });
+
 function updateLanguage()
 {
-    // var chart_date=document.getElementById("chart-date");
-    // var map_scale_min=document.getElementById("map-scale-min");
-    // var map_scale_max=document.getElementById("map-scale-max");
-    // map_scale_min.innerHTML=dict_lang[current_lang][scale_text[0]];
-    // map_scale_max.innerHTML=dict_lang[current_lang][scale_text[scale_text.length-1]];
-    // chart_date.innerHTML=dict_lang[current_lang][scale_text[current_date]];
-    time_chart.data.datasets[0].label=dict_lang[current_lang]['全球'];
-    // if (daily_data)
-    // {
-    //     time_chart.data.labels=daily_data.map(e=>dict_lang[current_lang][e['日期']]);
-    // }
+    time_chart_case.data.datasets[0].label=dict_lang[current_lang]['全球'];
+    time_chart_case.options.title.text=dict_lang[current_lang]['确诊'];
+
+    time_chart_death.data.datasets[0].label=dict_lang[current_lang]['全球'];
+    time_chart_death.options.title.text=dict_lang[current_lang]['死亡'];
+
     if (current_region)
     {
-        time_chart.data.datasets[1].label=dict_lang[current_lang][current_region];
+        time_chart_case.data.datasets[1].label=dict_lang[current_lang][current_region];
+        time_chart_death.data.datasets[1].label=dict_lang[current_lang][current_region];
     }
-    time_chart.update();
+    time_chart_case.update();
+    time_chart_death.update();
 }
 function hideLanguages(){
     $('[lang="zh"]').hide();
@@ -73,6 +65,16 @@ function hideLanguages(){
     $('[lang="ru"]').hide();
     $('[lang="de"]').hide();
 }
+function updateChart(time_chart,id,label,data,bg_color,border_color){
+    time_chart.data.datasets[id].label=label;
+    time_chart.data.datasets[id].data=data;
+    time_chart.data.datasets[id].backgroundColor=bg_color;
+    if (border_color)
+    {
+        time_chart.data.datasets[id].borderColor=border_color;
+    }
+}
+
 $("#dropbtn").click(function(){
     document.getElementById("lang-dropdown").classList.toggle("show");
 });
@@ -87,41 +89,16 @@ window.onclick = function(event) {
             }
         }
     }
-}
+};
 function getRange(data)
 {
     var values =[];
-    var dt = data.map(e => Object.values(e).slice(1));
-    for(var t = 0; t < dt.length; t++)
-    {
-        values = values.concat(dt[t]);
-    }
+    Object.values(data).slice(1).map(e => values=values.concat(e));
     return values;
 }
-
-var heat_color;
-
-// $(document).ready(function(){
-//
-// });
-
-// function sortNumber(a,b) {
-//     return a - b;
-// }
-//
-// function quantile(array, percentile) {
-//     array.sort(sortNumber);
-//     index = percentile/100. * (array.length-1);
-//     if (Math.floor(index) == index) {
-//         result = array[index];
-//     } else {
-//         i = Math.floor(index)
-//         fraction = index - i;
-//         result = array[i] + (array[i+1] - array[i]) * fraction;
-//     }
-//     return result;
-// }
-
+function columnSum(array) {
+    return array.reduce((a, b)=> a.map((x, i)=> x + (b[i] || 0)))
+}
 (function() {
     hideLanguages();
     $('[lang="en"]').show();
@@ -129,18 +106,16 @@ var heat_color;
     current_lang="en";
 
     var getj = $.getJSON("daily.json");
+
     getj.done(function(data) {
 
-        daily_data=data;
+        daily_case=data[0];
+        daily_death=data[1];
         var current_num=0;
 
-        // console.log(daily_data[0].日期);
-        // console.log(daily_data[0].湖北省);
-
-        var scale_values=getRange(daily_data);
+        var scale_values=getRange(daily_case);
         scale_min = Math.max(1,Math.round(Math.min.apply(null, scale_values)));
         scale_max = Math.round(Math.max.apply(null, scale_values));
-        // scale_high = quantile(scale_values,99);
         scale_high = scale_max;
 
 
@@ -149,23 +124,24 @@ var heat_color;
 
         scale_range=$.map($(Array(divides+1)),function(val, i) { return Math.round((scale_high-scale_min)*i/divides+scale_min); });
 
-        var dt = daily_data.map(e => Object.values(e).slice(1));
-        // var time_data=dt[0].map((col, i) => dt.map(row => row[i]));
-        var time_whole_data=dt.map(e => (e.reduce((a,b) => a + b,0)));
+        // var dt = daily_case.map(e => Object.values(e).slice(1));
+        // var time_whole_data=dt.map(e => (e.reduce((a,b) => a + b,0)));
 
-        // var labels=daily_data.map(e=>e['日期'].substring(5));
-        // var labels=d3.range(1,time_whole_data.length+1);
+        var time_world_total_case=columnSum(Object.values(daily_case).slice(1));
+        var time_world_total_death=columnSum(Object.values(daily_death).slice(1));
 
-        var ctx = document.getElementById('time-plot').getContext('2d');
-        var options = {
+
+        var ctx1 = document.getElementById('time-plot-case').getContext('2d');
+        var ctx2 = document.getElementById('time-plot-death').getContext('2d');
+        var options1 = {
             type: 'line',
             data: {
-                // labels: daily_data.map(e=>dict_lang[current_lang][e['日期']]),
-                labels: daily_data.map(e=>e['日期']),
+                // labels: daily_case.map(e=>dict_lang[current_lang][e['日期']]),
+                labels: Object.values(daily_case)[0],
                 datasets: [
                     {
                         label: dict_lang[current_lang]['全球'],
-                        data: time_whole_data,
+                        // data: time_world_total_case,
                         borderWidth: 1,
                         backgroundColor: '#eeeeee',
                         pointHoverRadius:10,
@@ -183,21 +159,34 @@ var heat_color;
                 ]
             },
             options: {
+                title: {
+                    display: true,
+                    // text: dict_lang[current_lang]['确诊']
+                },
                 scales: {
                     yAxes: [{
                         ticks: {
                             reverse: false,
-                            stepSize:50
+                            stepSize:50,
+                            min: 0
                         }
                     }]
                 }
             }
         };
+        var options2=JSON.parse(JSON.stringify(options1));
+        time_chart_case= new Chart(ctx1, options1);
+        time_chart_death= new Chart(ctx2, options2);
 
-        time_chart= new Chart(ctx, options);
+        time_chart_case.options.title.text=dict_lang[current_lang]['确诊'];
+        time_chart_death.options.title.text=dict_lang[current_lang]['死亡'];
 
         // time_chart.options.legend.position='right';
-        time_chart.options.legend.display=false;
+        time_chart_case.options.legend.display=false;
+        time_chart_death.options.legend.display=false;
+
+        time_chart_case.data.datasets[0].data=time_world_total_case;
+        time_chart_death.data.datasets[0].data=time_world_total_death;
 
         require.register("views/map", function(exports, require, module) {
             // heat_color = d3.scaleLinear()
@@ -219,12 +208,6 @@ var heat_color;
                         return x + (y - x) * p;
                     }
                 };
-
-                // geo_features=root.features;
-                // daily_data.forEach(function(x){
-                //     var keyname=Object.keys(x).map(function(s) { return s.substring(0, 2)});
-                //     geo_features.map(e => e['properties'][x['日期']]=Object.values(x)[keyname.indexOf(e.properties.name)] || 0);//replace undefined and null values with 0
-                // });
 
                 module.exports = MapView = (function() {
                     class MapView extends Backbone.View {
@@ -273,22 +256,23 @@ var heat_color;
                             });
                         }
                         drawMap(topo) {
-                            geo_features=topo.features;
-                            geo_features.map(e => e['properties']['values']=[]);
-                            // var keyname=Object.keys(daily_data[0]).map(function(s) { return s.substring(0, 2)});
-                            var keyname=Object.keys(daily_data[0]);
+                            geo_features_case=topo.features;
+                            geo_features_case.map(e => e['properties']['values']=[]);
+                            // geo_features_death=geo_features_case.slice();
+                            geo_features_death=JSON.parse(JSON.stringify(geo_features_case));
 
-                            daily_data.forEach(function(x){
-                                // geo_features.map(e => e['properties'][x['日期']]=Object.values(x)[keyname.indexOf(e.properties.name)] || 0);//replace undefined and null values with 0
-                                geo_features.map(e => e['properties']['values'].push(Object.values(x)[keyname.findIndex(ele => ele.includes(e.properties.name))] || 0));//replace undefined and null values with 0
-                            });
+                            // var keyname=Object.keys(daily_case[0]).map(function(s) { return s.substring(0, 2)});
+                            var keyname=Object.keys(daily_case);
 
-                            scale_text=daily_data.map(e=>e['日期']);
+                            geo_features_case.map(e => e['properties']['values']=Object.values(daily_case)[keyname.findIndex(ele => ele.includes(e.properties.name))] || 0);//replace undefined and null values with 0
+                            geo_features_death.map(e => e['properties']['values']=Object.values(daily_death)[keyname.findIndex(ele => ele.includes(e.properties.name))] || 0);//replace undefined and null values with 0
 
-                            // this.data.scale=daily_data.map(e=>e['日期']);
-                            this.data.scale=$.map($(Array(daily_data.length)),function(val, i) { return i; });
+                            scale_text=Object.values(daily_case)[0];
+
+                            // this.data.scale=daily_case.map(e=>e['日期']);
+                            this.data.scale=$.map($(Array(scale_text.length)),function(val, i) { return i; });
                             this.data.scale_text=scale_text;
-                            this.data.items=geo_features;
+                            this.data.items=geo_features_case;
 
                             var map_scale_min=document.getElementById("map-scale-min");
                             var map_scale_max=document.getElementById("map-scale-max");
@@ -297,7 +281,6 @@ var heat_color;
 
                             updateLanguage();
 
-
                             // var width = this.$elements.map.width();
                             var width = $('#map').width();
                             var height = $('#map').height();
@@ -305,11 +288,7 @@ var heat_color;
                             var svg = d3.select("svg");
                             svg.selectAll("*").remove();
 
-
                             var adj_scale=Math.min(250,height/2);
-                            // var adj_scale=Math.min(200,height);
-                            // var adj_scale=Math.min(200,height);
-
 
                             var projection = d3.geoMercator()
                                 // .center([107, 32]).scale(600)
@@ -331,7 +310,7 @@ var heat_color;
 
 
                             var svg_enter=svg.selectAll("path")
-                                .data(geo_features)
+                                .data(geo_features_case)
                                 .enter();
 
                             var tool_div = d3.select("body").append("div")
@@ -374,46 +353,46 @@ var heat_color;
                                     // .attr("fill",function(k) {return color_renderer(k)});
                                 })
                                 .on("mousedown", function (d,i) {
-                                    time_chart.data.datasets[0].label=dict_lang[current_lang]['全球'];
-                                    time_chart.data.datasets[0].data=time_whole_data;
-                                    time_chart.data.datasets[0].backgroundColor='#eeeeee';
+                                    time_chart_case.options.title.text=dict_lang[current_lang]['确诊'];
+                                    time_chart_death.options.title.text=dict_lang[current_lang]['死亡'];
+
+                                    updateChart(time_chart_case,0,dict_lang[current_lang]['全球'],time_world_total_case,'#eeeeee','');
+                                    updateChart(time_chart_death,0,dict_lang[current_lang]['全球'],time_world_total_death,'#eeeeee','');
 
                                     if (d3.select(this).attr("activated")>0) {
                                         tool_div.transition()
                                             .duration('50')
                                             .style("opacity", 1.0);
-                                        tool_div.html(dict_lang[current_lang][d.properties.name.toString()] + ":" + d.properties.values[current_num].toString())
+                                        tool_div.html(dict_lang[current_lang][d.properties.name.toString()] + ":" + d.properties.values[current_num].toString() + "("+geo_features_death[i].properties.values[current_num].toString()+")")
                                             .style("left", (Math.min(d3.event.pageX + 10, width-50)) + "px")
                                             .style("top", (Math.min(d3.event.pageY - 15,height-20)) + "px");
 
                                         current_region=d.properties.name.toString();
-                                        time_chart.data.datasets[1].label=dict_lang[current_lang][current_region];
-                                        time_chart.data.datasets[1].data=geo_features[i].properties.values;
-                                        time_chart.data.datasets[1].backgroundColor='#aaaaaa';
+
+                                        updateChart(time_chart_case,1,dict_lang[current_lang][current_region],geo_features_case[i].properties.values,'#aaaaaa','');
+                                        updateChart(time_chart_death,1,dict_lang[current_lang][current_region],geo_features_death[i].properties.values,'#aaaaaa','');
+
                                     }else
                                     {
                                         current_region="";
-                                        time_chart.data.datasets[1].label="";
-                                        time_chart.data.datasets[1].data=[];
-                                        time_chart.data.datasets[1].backgroundColor='#ffffff';
-                                        time_chart.data.datasets[1].borderColor='#ffffff';
+                                        updateChart(time_chart_case,1,"",[],'#ffffff','#ffffff');
+                                        updateChart(time_chart_death,1,"",[],'#ffffff','#ffffff');
                                     }
-                                    time_chart.update();
+                                    time_chart_case.update();
+                                    time_chart_death.update();
                                 })
                                 .on("mouseup", function (d,i) {
                                     if (d3.select(this).attr("activated")>0) {
-                                        time_chart.data.datasets[0].label="";
-                                        time_chart.data.datasets[0].data=[];
-                                        time_chart.data.datasets[0].backgroundColor='#ffffff';
-                                        time_chart.data.datasets[0].borderColor='#ffffff';
-                                        // time_chart.options.legend.display=false;
+                                        updateChart(time_chart_case,0,"",[],'#ffffff','#ffffff');
+                                        updateChart(time_chart_death,0,"",[],'#ffffff','#ffffff');
+                                        // time_chart_case.options.legend.display=false;
                                         current_region=d.properties.name.toString();
-                                        time_chart.data.datasets[1].label=dict_lang[current_lang][current_region];
-                                        time_chart.data.datasets[1].data=geo_features[i].properties.values;
-                                        time_chart.data.datasets[1].backgroundColor='#aaaaaa';
-                                        // time_chart.data.datasets[1].points.map(e=>e.pointRadius=1);
-                                        // time_chart.data.datasets[1].points[i].pointRadius=10;
-                                        time_chart.update();
+
+                                        updateChart(time_chart_case,1,dict_lang[current_lang][current_region],geo_features_case[i].properties.values,'#aaaaaa','');
+                                        updateChart(time_chart_death,1,dict_lang[current_lang][current_region],geo_features_death[i].properties.values,'#aaaaaa','');
+
+                                        time_chart_case.update();
+                                        time_chart_death.update();
                                     }
                                 });
                         }
@@ -430,15 +409,6 @@ var heat_color;
                             var fixed_middle= 2000;
                             var fixed_lower= 500;
 
-
-                            // var fixed_lower=Math.round(0.25/0.75*(fixed_upper-scale_min)+scale_min);
-                            // var fixed_middle=Math.round(0.5/0.75*(fixed_upper-scale_min)+scale_min);
-
-                            // var fixed_lower=Math.round(scale_high*0.25);
-                            // var fixed_middle=Math.round(scale_high*0.5);
-                            // var fixed_upper=Math.round(scale_high*0.75);
-
-
                             for (i = k = 0, ref = canvas.width*0.75; (0 <= ref ? k < ref : k > ref); i = 0 <= ref ? ++k : --k) {
                                 s = Math.floor((divides+1) * (k / (canvas.width*0.75))) / divides;
                                 context.fillStyle = this.interpolate((s*(fixed_upper-scale_min)+scale_min));
@@ -450,12 +420,6 @@ var heat_color;
                                 context.fillRect(i, 0, 2, 2);
                             }
 
-                            // for (i = k = 0, ref = canvas.width; (0 <= ref ? k < ref : k > ref); i = 0 <= ref ? ++k : --k) {
-                            //     s = Math.floor((divides+1) * (k / (canvas.width - 2))) / divides;
-                            //     context.fillStyle = this.interpolate((s*(scale_high-scale_min)+scale_min));
-                            //     context.fillRect(i, 0, 2, 2);
-                            // }
-
                             // var three_scales=[scale_min,Math.round(0.5*(scale_high+scale_max)),scale_max];
                             var three_scales=[scale_min,fixed_lower, fixed_middle,fixed_upper, Math.round(scale_high)];
                             var scale_label=document.getElementsByClassName("map-legend-label-scale");
@@ -465,14 +429,7 @@ var heat_color;
                             scale_label[1].innerHTML=three_scales[1];
                             scale_label[2].innerHTML=three_scales[2];
                             scale_label[3].innerHTML=three_scales[3];
-                            // scale_label[2].innerHTML=three_scales[2];
                             scale_label[scale_label.length-1].innerHTML=three_scales[three_scales.length-1];
-                            // for (i=1;i<scale_label.length-1;i++)
-                            // {
-                            //     scale_label[i].css("left", "25%");
-                            //     scale_label[i].innerHTML=three_scales[i];
-                            // }
-
                         }
 
                         drawMinimap() {
@@ -556,7 +513,7 @@ var heat_color;
                             var chart_date=document.getElementById("chart-date");
                             chart_date.innerHTML=scale_text[current_date];
 
-                            data = geo_features;
+                            data = geo_features_case;
                             for (k = 0, len = data.length; k < len; k++) {
 
                                 item = data[k]['properties']['values'];
