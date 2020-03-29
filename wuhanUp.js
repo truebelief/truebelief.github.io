@@ -52,6 +52,13 @@ function updateLanguage()
     time_chart_death.data.datasets[0].label=dict_lang[current_lang]['全球'];
     time_chart_death.options.title.text=dict_lang[current_lang]['死亡'];
 
+
+    time_chart_case.options.scales.yAxes[0].scaleLabel.labelString=dict_lang[current_lang]['累积']
+    time_chart_case.options.scales.yAxes[1].scaleLabel.labelString=dict_lang[current_lang]['增量']
+
+    time_chart_death.options.scales.yAxes[0].scaleLabel.labelString=dict_lang[current_lang]['累积']
+    time_chart_death.options.scales.yAxes[1].scaleLabel.labelString=dict_lang[current_lang]['增量']
+
     if (current_region)
     {
         time_chart_case.data.datasets[1].label=dict_lang[current_lang][current_region];
