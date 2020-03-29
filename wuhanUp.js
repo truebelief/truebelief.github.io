@@ -11,6 +11,8 @@ var geo_features_death;
 
 var daily_case;
 var daily_death;
+var daily_case_incre;
+var daily_death_incre;
 
 var scale_range;
 var scale_min;
@@ -27,6 +29,9 @@ var scale_text;
 var time_chart_case;
 var time_chart_death;
 var heat_color;
+
+
+var time_chart_begin_number=10;
 
 $(".button-lang").click(function() {
     $(".button-lang").removeClass('current-lang');
@@ -71,8 +76,9 @@ function updateChart(time_chart,id,label,data,bg_color,border_color){
     time_chart.data.datasets[id].backgroundColor=bg_color;
     if (border_color)
     {
-        time_chart.data.datasets[id].borderColor=border_color;
+        // time_chart.data.datasets[id].borderColor=border_color;
     }
+
 }
 
 $("#dropbtn").click(function(){
@@ -99,11 +105,19 @@ function getRange(data)
 function columnSum(array) {
     return array.reduce((a, b)=> a.map((x, i)=> x + (b[i] || 0)))
 }
+
+// $( function() {
+//
+// } );
+
 (function() {
     hideLanguages();
     $('[lang="en"]').show();
-
     current_lang="en";
+
+    $("#reszable").resizable({ handles: 'sw' });
+    $('.ui-resizable-sw').addClass('ui-icon-gripsmall-diagonal-sw');
+
 
     var getj = $.getJSON("daily.json");
 
@@ -111,6 +125,10 @@ function columnSum(array) {
 
         daily_case=data[0];
         daily_death=data[1];
+
+
+        // daily_case_incre=
+
         var current_num=0;
 
         var scale_values=getRange(daily_case);
@@ -130,6 +148,8 @@ function columnSum(array) {
         var time_world_total_case=columnSum(Object.values(daily_case).slice(1));
         var time_world_total_death=columnSum(Object.values(daily_death).slice(1));
 
+        var time_world_incre_case=[time_world_total_case[0]].concat(time_world_total_case.slice(1).map((e,i)=>e-time_world_total_case[i]));
+        var time_world_incre_death=[time_world_total_death[0]].concat(time_world_total_death.slice(1).map((e,i)=>e-time_world_total_death[i]));
 
         var ctx1 = document.getElementById('time-plot-case').getContext('2d');
         var ctx2 = document.getElementById('time-plot-death').getContext('2d');
@@ -137,28 +157,54 @@ function columnSum(array) {
             type: 'line',
             data: {
                 // labels: daily_case.map(e=>dict_lang[current_lang][e['日期']]),
-                labels: Object.values(daily_case)[0],
+                labels: Object.values(daily_case)[0].slice(time_chart_begin_number),
                 datasets: [
                     {
                         label: dict_lang[current_lang]['全球'],
                         // data: time_world_total_case,
                         borderWidth: 1,
                         backgroundColor: '#eeeeee',
-                        pointHoverRadius:10,
-                        order:1
-                    // }
+                        pointRadius: 1,
+                        pointHoverRadius:4,
+                        order:3,
+                        yAxisID: "id1"
                     },
                     {
                         label: '',
                         data: [],
                         borderWidth: 0,
                         backgroundColor: '#ffffff',
-                        pointHoverRadius:10,
-                        order:0
+                        pointRadius: 1,
+                        pointHoverRadius:4,
+                        order:2,
+                        yAxisID: "id1"
+                    },
+                    {
+                        label: dict_lang[current_lang]['全球'],
+                        // data: time_world_total_case,
+                        borderWidth: 1,
+                        backgroundColor: '#4ad',
+                        pointRadius: 1,
+                        pointHoverRadius:4,
+                        order:0,
+                        yAxisID: "id2"
+                    },
+                    {
+                        label: '',
+                        data: [],
+                        borderWidth: 0,
+                        backgroundColor: '#4ad',
+                        pointRadius: 1,
+                        pointHoverRadius:4,
+                        order:1,
+                        yAxisID: "id2"
                     }
+
                 ]
             },
             options: {
+                responsive:true,
+                maintainAspectRatio:false,
                 title: {
                     display: true,
                     // text: dict_lang[current_lang]['确诊']
@@ -167,10 +213,40 @@ function columnSum(array) {
                     yAxes: [{
                         ticks: {
                             reverse: false,
-                            stepSize:50,
-                            min: 0
+                            stepSize:2000,
+                            min: 0,
+                            maxTicksLimit:8
+                        },
+                        id: "id1",
+                        scaleLabel:{
+                            display:true,
+                            labelString:dict_lang[current_lang]['累积']
+                        },
+                        position:"left",
+                        gridLines: {
+                            display:true
                         }
-                    }]
+                    },
+                    {
+                        ticks: {
+                            reverse: false,
+                            stepSize:1000,
+                            min: 0,
+                            maxTicksLimit:8
+                        },
+                        id: "id2",
+                        scaleLabel:{
+                            display:true,
+                            labelString:dict_lang[current_lang]['增量'],
+                            fontColor: "#4ad"
+                        },
+                        position:"right",
+                        gridLines: {
+                            display:false
+                        }
+                    }
+
+                    ]
                 }
             }
         };
@@ -185,8 +261,15 @@ function columnSum(array) {
         time_chart_case.options.legend.display=false;
         time_chart_death.options.legend.display=false;
 
-        time_chart_case.data.datasets[0].data=time_world_total_case;
-        time_chart_death.data.datasets[0].data=time_world_total_death;
+        time_chart_case.data.datasets[0].data=time_world_total_case.slice(time_chart_begin_number);
+        time_chart_death.data.datasets[0].data=time_world_total_death.slice(time_chart_begin_number);
+
+        time_chart_case.data.datasets[2].data=time_world_incre_case.slice(time_chart_begin_number);
+        time_chart_death.data.datasets[2].data=time_world_incre_death.slice(time_chart_begin_number);
+
+
+
+
 
         require.register("views/map", function(exports, require, module) {
             // heat_color = d3.scaleLinear()
@@ -265,7 +348,9 @@ function columnSum(array) {
                             var keyname=Object.keys(daily_case);
 
                             geo_features_case.map(e => e['properties']['values']=Object.values(daily_case)[keyname.findIndex(ele => ele.includes(e.properties.name))] || 0);//replace undefined and null values with 0
+                            geo_features_case.map(e => e['properties']['values2']=[Object.values(daily_case)[keyname.findIndex(ele => ele.includes(e.properties.name))][0]].concat(Object.values(daily_case)[keyname.findIndex(ele => ele.includes(e.properties.name))].slice(1).map((k,i)=>k-Object.values(daily_case)[keyname.findIndex(ele => ele.includes(e.properties.name))][i]|| 0)));//replace undefined and null values with 0
                             geo_features_death.map(e => e['properties']['values']=Object.values(daily_death)[keyname.findIndex(ele => ele.includes(e.properties.name))] || 0);//replace undefined and null values with 0
+                            geo_features_death.map(e => e['properties']['values2']=[Object.values(daily_death)[keyname.findIndex(ele => ele.includes(e.properties.name))][0]].concat(Object.values(daily_death)[keyname.findIndex(ele => ele.includes(e.properties.name))].slice(1).map((k,i)=>k-Object.values(daily_death)[keyname.findIndex(ele => ele.includes(e.properties.name))][i]|| 0)));//replace undefined and null values with 0
 
                             scale_text=Object.values(daily_case)[0];
 
@@ -356,8 +441,11 @@ function columnSum(array) {
                                     time_chart_case.options.title.text=dict_lang[current_lang]['确诊'];
                                     time_chart_death.options.title.text=dict_lang[current_lang]['死亡'];
 
-                                    updateChart(time_chart_case,0,dict_lang[current_lang]['全球'],time_world_total_case,'#eeeeee','');
-                                    updateChart(time_chart_death,0,dict_lang[current_lang]['全球'],time_world_total_death,'#eeeeee','');
+                                    updateChart(time_chart_case,0,dict_lang[current_lang]['全球'],time_world_total_case.slice(time_chart_begin_number),'#eeeeee','');
+                                    updateChart(time_chart_death,0,dict_lang[current_lang]['全球'],time_world_total_death.slice(time_chart_begin_number),'#eeeeee','');
+
+                                    updateChart(time_chart_case,2,dict_lang[current_lang]['全球'],time_world_incre_case.slice(time_chart_begin_number),'#4ad','');
+                                    updateChart(time_chart_death,2,dict_lang[current_lang]['全球'],time_world_incre_death.slice(time_chart_begin_number),'#4ad','');
 
                                     if (d3.select(this).attr("activated")>0) {
                                         tool_div.transition()
@@ -369,14 +457,20 @@ function columnSum(array) {
 
                                         current_region=d.properties.name.toString();
 
-                                        updateChart(time_chart_case,1,dict_lang[current_lang][current_region],geo_features_case[i].properties.values,'#aaaaaa','');
-                                        updateChart(time_chart_death,1,dict_lang[current_lang][current_region],geo_features_death[i].properties.values,'#aaaaaa','');
+                                        updateChart(time_chart_case,1,dict_lang[current_lang][current_region],geo_features_case[i].properties.values.slice(time_chart_begin_number),'#dddddd','');
+                                        updateChart(time_chart_death,1,dict_lang[current_lang][current_region],geo_features_death[i].properties.values.slice(time_chart_begin_number),'#dddddd','');
 
+                                        updateChart(time_chart_case,3,dict_lang[current_lang][current_region],geo_features_case[i].properties.values2.slice(time_chart_begin_number),'#4ad','');
+                                        updateChart(time_chart_death,3,dict_lang[current_lang][current_region],geo_features_death[i].properties.values2.slice(time_chart_begin_number),'#4ad','');
                                     }else
                                     {
                                         current_region="";
                                         updateChart(time_chart_case,1,"",[],'#ffffff','#ffffff');
                                         updateChart(time_chart_death,1,"",[],'#ffffff','#ffffff');
+
+                                        updateChart(time_chart_case,3,"",[],'#ffffff','#ffffff');
+                                        updateChart(time_chart_death,3,"",[],'#ffffff','#ffffff');
+
                                     }
                                     time_chart_case.update();
                                     time_chart_death.update();
@@ -385,11 +479,17 @@ function columnSum(array) {
                                     if (d3.select(this).attr("activated")>0) {
                                         updateChart(time_chart_case,0,"",[],'#ffffff','#ffffff');
                                         updateChart(time_chart_death,0,"",[],'#ffffff','#ffffff');
+                                        updateChart(time_chart_case,2,"",[],'#ffffff','#ffffff');
+                                        updateChart(time_chart_death,2,"",[],'#ffffff','#ffffff');
+
                                         // time_chart_case.options.legend.display=false;
                                         current_region=d.properties.name.toString();
 
-                                        updateChart(time_chart_case,1,dict_lang[current_lang][current_region],geo_features_case[i].properties.values,'#aaaaaa','');
-                                        updateChart(time_chart_death,1,dict_lang[current_lang][current_region],geo_features_death[i].properties.values,'#aaaaaa','');
+                                        updateChart(time_chart_case,1,dict_lang[current_lang][current_region],geo_features_case[i].properties.values.slice(time_chart_begin_number),'#dddddd','');
+                                        updateChart(time_chart_death,1,dict_lang[current_lang][current_region],geo_features_death[i].properties.values.slice(time_chart_begin_number),'#dddddd','');
+
+                                        updateChart(time_chart_case,3,dict_lang[current_lang][current_region],geo_features_case[i].properties.values2.slice(time_chart_begin_number),'#4ad','');
+                                        updateChart(time_chart_death,3,dict_lang[current_lang][current_region],geo_features_death[i].properties.values2.slice(time_chart_begin_number),'#4ad','');
 
                                         time_chart_case.update();
                                         time_chart_death.update();
@@ -512,6 +612,8 @@ function columnSum(array) {
 
                             var chart_date=document.getElementById("chart-date");
                             chart_date.innerHTML=scale_text[current_date];
+
+
 
                             data = geo_features_case;
                             for (k = 0, len = data.length; k < len; k++) {

@@ -10,6 +10,8 @@
 <!--    <meta http-equiv="content-type" content="text/html;UTF-8">-->
 <!--    <meta http-equiv="content-language" content="zh">-->
     <link rel="stylesheet" href="vendor/app.37391c5.css">
+    <link rel="stylesheet" href="vendor/jquery-ui.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="wuhanUp.css">
 </head>
 <body>
@@ -27,7 +29,6 @@
 <!--                <div class="chart-title-sub">累计确诊病例数</div>-->
 <!--            </h1>-->
 <!--        </div>-->
-
 
         <div id="map-scale">
             <div class="map-legend-label txt-bold" lang="zh">累计确诊病例数</div>
@@ -53,6 +54,7 @@
             </div>
         </div>
         <div id="chart-date"></div>
+
         <div id="controls">
             <a class="btn" id="btn-reset" tabindex="0">
                 <svg class="btn-icon" viewBox="0 0 24 24">
@@ -95,15 +97,15 @@
         <span lang="es">Autor(ZXi), Fuente de datos</span>
         <span lang="ru">автор(ZXi), Источник данных</span>
         <span lang="de">Autor(ZXi), Datenquelle</span>
-        <a href="https://en.wikipedia.org/wiki/Template:2019%E2%80%9320_coronavirus_outbreak_data/WHO_situation_reports">(
-        <span lang="zh">维基百科</span>
-        <span lang="en">Wikipedia</span>
-        <span lang="tw">維基百科</span>
-        <span lang="ja">ウィキペディア</span>
-        <span lang="fr">Wikipédia</span>
-        <span lang="es">Wikipedia</span>
-        <span lang="ru">Википедия</span>
-        <span lang="de">Wikipedia</span>
+        <a href="https://ourworldindata.org/coronavirus-source-data">(
+        <span lang="zh">维基百科 & ourworldindata.org</span>
+        <span lang="en">Wikipedia & ourworldindata.org</span>
+        <span lang="tw">維基百科 & ourworldindata.org</span>
+        <span lang="ja">ウィキペディア & ourworldindata.org</span>
+        <span lang="fr">Wikipédia & ourworldindata.org</span>
+        <span lang="es">Wikipedia & ourworldindata.org</span>
+        <span lang="ru">Википедия & ourworldindata.org</span>
+        <span lang="de">Wikipedia & ourworldindata.org</span>
         )</a>,
         <a href="https://interactives.lowyinstitute.org/charts/china-us-trade-dominance/us-china-competition/">
             <span lang="zh">网页参考</span>
@@ -116,10 +118,12 @@
             <span lang="de">Vorlage</span>
         </a>
     </small>
-
-    <div id="time-chart">
-        <canvas class="time-plot" id="time-plot-case"></canvas>
-        <canvas class="time-plot" id="time-plot-death"></canvas>
+    <div id="reszable">
+        <div id="time-chart" class="ui-widget-content">
+<!--            <h3 class="ui-widget-header">Resizable</h3>-->
+            <canvas class="time-plot" id="time-plot-case"></canvas>
+            <canvas class="time-plot" id="time-plot-death"></canvas>
+        </div>
     </div>
 
     <div class="dropdown">
@@ -152,12 +156,15 @@
 
 <script type="text/javascript" src="vendor/Chart.min.js"></script>
 
-<script type="text/javascript" src="vendor/jquery-3.4.1.min.js"></script>
+<!--<script type="text/javascript" src="vendor/jquery-3.4.1.min.js"></script>-->
 
 <script type="text/javascript" src="vendor/vendor.37391c5.js"></script>
 <script type="text/javascript" src="vendor/app.37391c5.js"></script>
 <script type="text/javascript" src="vendor/d3.v5.js"></script>
 <script type="text/javascript" src="dict.js"></script>
+
+<script type="text/javascript" src="vendor/jquery-1.12.4.js"></script>
+<script type="text/javascript" src="vendor/jquery-ui.js"></script>
 <script type="text/javascript" src="wuhanUp.js"></script>
 
 
