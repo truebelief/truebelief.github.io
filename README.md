@@ -7,18 +7,10 @@ Website:
 
 https://truebelief.github.io/wuhanUp
 
-Excel xlsx:
-
-spread_of_COVID-19_cases(accumulation).xlsx
-
 ___________________________________________________________________________
 新型肺炎在全球的蔓延情况（1月10日起-不定期更新）
 
 网页查看：
 
 https://truebelief.github.io/wuhanUp
-
-xlsx数据：
-
-spread_of_COVID-19_cases(accumulation).xlsx
 
